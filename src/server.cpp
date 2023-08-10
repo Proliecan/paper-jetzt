@@ -4,6 +4,10 @@ string colorize(string text, colors color)
 {
     return "\033[" + std::to_string(color) + "m" + text + "\033[0m";
 }
+string strip_endline(string text)
+{
+    return text.substr(0, text.length() - 1);
+}
 
 void server::do_accept()
 {
@@ -28,9 +32,11 @@ void session::do_read()
                                 if (!ec)
                                 {
                                     // strip endline from data
-                                    data_[strlen(data_) - 1] = '\0';
+                                    string data_str = strip_endline(data_);
 
-                                    cout << colorize(">", colors::red) << " " << colorize(socket_.remote_endpoint().address().to_string(), cyan) << ": " << data_ << endl;
+                                    cout << colorize(">", colors::red) << " "
+                                         << colorize(socket_.remote_endpoint().address().to_string(), cyan) << ": "
+                                         << data_str << endl;
                                     do_write(length);
                                 }
                             });
@@ -44,8 +50,17 @@ void session::do_write(std::size_t length)
                              {
                                  if (!ec)
                                  {
-                                     cout << colorize("<", colors::green) << " " << colorize(socket_.remote_endpoint().address().to_string(), cyan) << ": " << data_ << endl;
+                                     // strip endline from data
+                                     string data_str = strip_endline(data_);
+
+                                     cout << colorize("<", colors::green) << " "
+                                          << colorize(socket_.remote_endpoint().address().to_string(), cyan) << ": "
+                                          << data_str << endl
+                                          << endl;
                                      do_read();
                                  }
+
+                                 // clear data buffer
+                                 memset(data_, 0, max_length);
                              });
 }

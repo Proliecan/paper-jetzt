@@ -34,6 +34,7 @@ enum colors
     reset = 0
 };
 string colorize(string text, colors color);
+string strip_endline(string text);
 
 
 class server
