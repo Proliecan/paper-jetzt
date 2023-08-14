@@ -26,9 +26,6 @@ public:
     {
         cout << "Server listening on port " << colorize(std::to_string(port), cyan) << endl;
 
-        // create new game
-        new Game(10, 10);
-
         do_accept();
     }
 
