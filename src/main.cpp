@@ -6,13 +6,13 @@ int main(int argc, char *argv[])
     {
         if (argc != 2)
         {
-            std::cerr << "Usage: " << argv[0] << colorize(" <port>", colors::red) << std::endl;
+            std::cerr << "Usage: " << argv[0] << colorize(" <port>", color::red) << std::endl;
             return 1;
         }
 
         boost::asio::io_context io_context;
 
-        server s(io_context, std::atoi(argv[1]));
+        Server s(io_context, std::atoi(argv[1]));
 
         io_context.run();
     }

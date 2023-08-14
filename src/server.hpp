@@ -6,51 +6,33 @@
 #include <utility>
 #include <boost/asio.hpp>
 
+#include "game.hpp"
+
 using boost::asio::ip::tcp;
 using std::cout;
 using std::endl;
 using std::string;
+using game::Game;
+using game::Player;
 
-// forward declaration
-class session;
-enum colors
-{
-    red = 31,
-    green = 32,
-    blue = 34,
-    yellow = 33,
-    magenta = 35,
-    cyan = 36,
-    white = 37,
-    red_bg = 41,
-    green_bg = 42,
-    blue_bg = 44,
-    yellow_bg = 43,
-    magenta_bg = 45,
-    cyan_bg = 46,
-    white_bg = 47,
-    bold = 1,
-
-    reset = 0
-};
-string colorize(string text, colors color);
-string strip_endline(string text);
-
-
-class server
+class Server
 {
 private:
     tcp::acceptor acceptor_;
 
 public:
-    server(boost::asio::io_context &io_context, short port)
+    Server(boost::asio::io_context &io_context, short port)
         : acceptor_(io_context, tcp::endpoint(tcp::v4(), port))
     {
         cout << "Server listening on port " << colorize(std::to_string(port), cyan) << endl;
+
+        // create new game
+        new Game(10, 10);
+
         do_accept();
     }
 
-    ~server()
+    ~Server()
     {
         cout << "Server shutting down" << endl;
     }
@@ -59,8 +41,8 @@ private:
     void do_accept();
 };
 
-class session
-    : public std::enable_shared_from_this<session>
+class Session
+    : public std::enable_shared_from_this<Session>
 {
 
 private:
@@ -71,16 +53,20 @@ private:
     };
     char data_[max_length];
 
+    // player data
+    Player* m_player;
+
 public:
-    session(tcp::socket socket)
-        : socket_(std::move(socket))
+    Session(tcp::socket socket, Player* player)
+        : socket_(std::move(socket)),
+          m_player(player)
     {
-        cout << colorize("New session with", colors::yellow) << " " << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl;
+        cout << colorize("New session with", color::yellow) << " " << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl;
     }
 
-    ~session()
+    ~Session()
     {
-        cout << colorize("Ending session with ", colors::yellow) << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl;
+        cout << colorize("Ending session with ", color::yellow) << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl;
     }
 
     void start()
