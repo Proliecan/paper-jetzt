@@ -1,6 +1,6 @@
 # Error codes for the API
 
-- Differing from the protocol described by @freehuntx, I send the shorttext to the error code as a second argument.
+> Differing from the protocol described by @freehuntx, I send the shorttext to the error code as a second argument.
 
 ## list of error codes and descriptions
 
