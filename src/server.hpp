@@ -4,6 +4,9 @@
 #include <iostream>
 #include <memory>
 #include <utility>
+#include <string>
+#include <vector>
+#include <sstream>
 #include <boost/asio.hpp>
 
 #include "game.hpp"
@@ -12,6 +15,8 @@ using boost::asio::ip::tcp;
 using std::cout;
 using std::endl;
 using std::string;
+using std::vector;
+using std::stringstream;
 using game::Game;
 using game::Player;
 
@@ -41,6 +46,12 @@ private:
 class Session
     : public std::enable_shared_from_this<Session>
 {
+public:
+    enum ProcessErrorCode
+    {
+        OK,
+        ERROR
+    };
 
 private:
     tcp::socket socket_;
@@ -70,6 +81,8 @@ public:
     {
         do_read();
     }
+
+    ProcessErrorCode process(string data);
 
 private:
     void do_read();
