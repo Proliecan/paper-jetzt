@@ -34,4 +34,5 @@ namespace helpers
     string colorize(string text, color c);
     string stripEndline(string text);
     color nearestColorFromHexCode(string hexcode);
+    string strip(string text);
 }

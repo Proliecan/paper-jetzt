@@ -77,4 +77,19 @@ namespace helpers
 
         return reset;
     }
+
+    string strip(string text)
+    {
+        string stripped = "";
+
+        for (unsigned int i = 0; i < text.length(); i++)
+        {
+            if (text[i] != ' ' && text[i] != '\n' && text[i] != '\t')
+            {
+                stripped += text[i];
+            }
+        }
+
+        return stripped;
+    }
 }
