@@ -186,10 +186,41 @@ string Session::to_string(ServerPacketType type)
     }
 }
 
-Session::ProcessErrorCode Session::processJoin(string /* username */, string /* password */)
+
+bool Session::hasJoined()
 {
-    // todo: check credentials and create player object
-    __assert_fail("Not implemented", __FILE__, __LINE__, __func__);
+    return m_player != nullptr;
+}
+
+Session::ProcessErrorCode Session::checkCredentials(string /* username */, string /* password */)
+{
+    // todo: check credentials
+    return OK;
+}
+
+Session::ProcessErrorCode Session::processJoin(string username, string password)
+{
+    if (hasJoined())
+    {
+        // send error packet
+        this->sendPacket(error, {"ALREADY_JOINED", "You have already joined"});
+        return ERROR;
+    }   
+
+    // check credentials
+    ProcessErrorCode ec = checkCredentials(username, password);
+
+    if (ec == ERROR)
+    {
+        // send error packet
+        this->sendPacket(error, {"AUTH_ERR", "Invalid username or password"});
+        return ERROR;
+    }
+
+    // create player
+    m_player = new Player(username, helpers::randomHexColor());
+
+    return OK;
 }
 
 Session::ProcessErrorCode Session::processMove(string /* direction */)

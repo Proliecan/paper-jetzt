@@ -92,4 +92,41 @@ namespace helpers
 
         return stripped;
     }
+
+    string randomHexColor(){
+        string hexcode = "#";
+        for (int i = 0; i < 6; i++)
+        {
+            int rand_num = rand() % 16;
+            if (rand_num < 10)
+            {
+                hexcode += std::to_string(rand_num);
+            }
+            else
+            {
+                switch (rand_num)
+                {
+                case 10:
+                    hexcode += "a";
+                    break;
+                case 11:
+                    hexcode += "b";
+                    break;
+                case 12:
+                    hexcode += "c";
+                    break;
+                case 13:
+                    hexcode += "d";
+                    break;
+                case 14:
+                    hexcode += "e";
+                    break;
+                case 15:
+                    hexcode += "f";
+                    break;
+                }
+            }
+        }
+        return hexcode;
+    }
 }

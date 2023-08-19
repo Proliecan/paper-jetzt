@@ -35,4 +35,5 @@ namespace helpers
     string stripEndline(string text);
     color nearestColorFromHexCode(string hexcode);
     string strip(string text);
+    string randomHexColor();
 }

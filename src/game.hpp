@@ -29,20 +29,16 @@ namespace game
         vector<position> *trace;
 
     public:
-        Player(string i_name, string i_color, position start_pos)
+        Player(string i_name, string i_color)
             : m_name(i_name),
               m_color(i_color),
-              pos(start_pos),
               trace(new vector<position>)
         {
-            trace->push_back(start_pos);
-
             // Print player info
             color c = nearestColorFromHexCode(i_color);
             cout << colorize("Player " + i_name + " joined the game", c) << endl;
             cout << colorize("Color: " + i_color, c) << endl;
-            cout << colorize("Position: (" + std::to_string(start_pos.x) + ", " + std::to_string(start_pos.y) + ")", c) << endl;
-        };
+      };
 
         string get_name() { return m_name; };
         string get_color() { return m_color; };
