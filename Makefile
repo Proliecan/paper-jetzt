@@ -2,7 +2,7 @@
 srcDir = src
 hdrDir = src
 objDir = out/obj
-binDir = out/
+binDir = out
 # src
 src := $(wildcard $(srcDir)/*.cpp)
 # hdr
