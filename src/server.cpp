@@ -9,7 +9,7 @@ void Server::do_accept()
             {
                 // create new session
                 std::shared_ptr<Session> session = std::make_shared<Session>(std::move(socket));
-                sessions_.push_back(session);
+                sessions_.push_back(&session);
 
                 // start session
                 session->start();

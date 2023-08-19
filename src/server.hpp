@@ -25,7 +25,7 @@ class Server
 {
 private:
     tcp::acceptor acceptor_;
-    vector<std::shared_ptr<Session>> sessions_;
+    vector<std::shared_ptr<Session>*> sessions_;
 
 public:
     Server(boost::asio::io_context &io_context, short port)
