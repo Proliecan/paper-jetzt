@@ -18,14 +18,19 @@ using std::stringstream;
 using game::Game;
 using game::Player;
 
+// forward declarations
+class Session;
+
 class Server
 {
 private:
     tcp::acceptor acceptor_;
+    vector<std::shared_ptr<Session>> sessions_;
 
 public:
     Server(boost::asio::io_context &io_context, short port)
-        : acceptor_(io_context, tcp::endpoint(tcp::v4(), port))
+        : acceptor_(io_context, tcp::endpoint(tcp::v4(), port)),
+            sessions_()
     {
         cout << "Server listening on port " << colorize(std::to_string(port), cyan) << endl;
 
@@ -110,4 +115,9 @@ private:
     void sendPacket(ServerPacketType type, vector<string> args);
 
     string to_string(ServerPacketType type);
+
+    // process client packets
+    ProcessErrorCode processJoin(string /* username */, string /* password */);
+    ProcessErrorCode processMove(string /* direction */);
+    ProcessErrorCode processChat(string /* message */);
 };

@@ -7,7 +7,12 @@ void Server::do_accept()
         {
             if (!ec)
             {
-                std::make_shared<Session>(std::move(socket))->start();
+                // create new session
+                std::shared_ptr<Session> session = std::make_shared<Session>(std::move(socket));
+                sessions_.push_back(session);
+
+                // start session
+                session->start();
             }
 
             do_accept();
@@ -106,7 +111,7 @@ Session::ProcessErrorCode Session::process(string data)
             return ERROR;
         }
 
-        // todo: check credentials and create player object
+        processJoin(args[0], args[1]);
         return OK;
     }
     else if (ptype == "move")
@@ -118,7 +123,7 @@ Session::ProcessErrorCode Session::process(string data)
             return ERROR;
         }
 
-        // todo: register move for next tick
+        processMove(args[0]);
         return OK;
     }
     else if (ptype == "chat")
@@ -130,7 +135,7 @@ Session::ProcessErrorCode Session::process(string data)
             return ERROR;
         }
 
-        // todo: send message to all players
+        processChat(args[0]);
         return OK;
     }
 
@@ -179,4 +184,22 @@ string Session::to_string(ServerPacketType type)
     default:
         return "unknown";
     }
+}
+
+Session::ProcessErrorCode Session::processJoin(string /* username */, string /* password */)
+{
+    // todo: check credentials and create player object
+    __assert_fail("Not implemented", __FILE__, __LINE__, __func__);
+}
+
+Session::ProcessErrorCode Session::processMove(string /* direction */)
+{
+    // todo: register move for next tick
+    __assert_fail("Not implemented", __FILE__, __LINE__, __func__);
+}
+
+Session::ProcessErrorCode Session::processChat(string /* message */)
+{
+    // todo: send message to all players
+    __assert_fail("Not implemented", __FILE__, __LINE__, __func__);
 }
