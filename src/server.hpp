@@ -53,21 +53,41 @@ public:
         ERROR
     };
 
+    enum ServerPacketType
+    {
+        motd,
+        error,
+        game,
+        pos,
+        player,
+        tick,
+        die,
+        message,
+        win,
+        lose
+    };
+
+    // enum ClientPacketType // not used rn
+    // {
+    //     join,
+    //     move,
+    //     chat
+    // };
+
 private:
     tcp::socket socket_;
     enum
     {
         max_length = 1024
     };
-    char data_[max_length];
 
     // player data
     Player* m_player;
 
 public:
-    Session(tcp::socket socket, Player* player)
+    Session(tcp::socket socket)
         : socket_(std::move(socket)),
-          m_player(player)
+          m_player(nullptr)
     {
         cout << colorize("New session with", color::yellow) << " " << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl;
     }
@@ -87,5 +107,9 @@ public:
 private:
     void do_read();
 
-    void do_write(std::size_t length);
+    void do_write(string data);
+
+    void sendPacket(ServerPacketType type, vector<string> args);
+
+    string to_string(ServerPacketType type);
 };
