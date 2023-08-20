@@ -40,10 +40,10 @@ namespace game
             cout << colorize("Color: " + i_color, c) << endl;
       };
 
-        string get_name() { return m_name; };
-        string get_color() { return m_color; };
-        position get_pos() { return pos; };
-        vector<position> *get_trace() { return trace; };
+        string getName() { return m_name; };
+        string getColor() { return m_color; };
+        position getPos() { return pos; };
+        vector<position> *getTrace() { return trace; };
     };
 
     class Game
@@ -59,10 +59,10 @@ namespace game
               height(height),
               players(new vector<Player>){};
 
-        int get_width() { return width; };
-        int get_height() { return height; };
-        vector<Player> *get_players() { return players; };
+        int getWidth() { return width; };
+        int getWeight() { return height; };
+        vector<Player> *getPlayers() { return players; };
 
-        void add_player(Player p) { players->push_back(p); };
+        void addPlayer(Player p) { players->push_back(p); };
     };
 }
