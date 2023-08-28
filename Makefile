@@ -13,8 +13,9 @@ obj := $(patsubst $(srcDir)/%.cpp, $(objDir)/%.o, $(src))
 bin = $(binDir)/server
 # compiler
 CC = g++
-# flags
-CFLAGS = -Wall -Wextra -Werror -std=c++11 -g
+# flags (unknown pragmas are not errors)
+CFLAGS = -Wall -Wextra -Werror -Wno-unknown-pragmas -std=c++11 -g
+
 
 # target
 all: $(bin)
