@@ -35,9 +35,8 @@ void Session::do_read()
                                     string data_str = string(data_);
                                     // strip endline from data
                                     data_str = stripEndline(data_str);
-                                    
+
                                     delete[] data_;
-                                    
 
                                     cout << colorize(">", color::red) << " "
                                          << colorize(socket_.remote_endpoint().address().to_string(), cyan) << ": "
@@ -76,10 +75,9 @@ void Session::do_write(string data)
                                           << endl;
                                  }
                              });
-
 }
 
-Session::ProcessErrorCode Session::process(string data)
+ProcessErrorCode Session::process(string data)
 {
     // split packet type and arguments
     // <ptype> | <arg1> <arg2> ...
@@ -165,7 +163,7 @@ string Session::to_string(ServerPacketType type)
         return "motd";
     case error:
         return "error";
-    case game:
+    case game_pkg:
         return "game";
     case pos:
         return "pos";
@@ -186,26 +184,25 @@ string Session::to_string(ServerPacketType type)
     }
 }
 
-
 bool Session::hasJoined()
 {
     return m_player != nullptr;
 }
 
-Session::ProcessErrorCode Session::checkCredentials(string /* username */, string /* password */)
+ProcessErrorCode Session::checkCredentials(string /* username */, string /* password */)
 {
     // todo: check credentials
     return OK;
 }
 
-Session::ProcessErrorCode Session::processJoin(string username, string password)
+ProcessErrorCode Session::processJoin(string username, string password)
 {
     if (hasJoined())
     {
         // send error packet
         this->sendPacket(error, {"ALREADY_JOINED", "You have already joined"});
         return ERROR;
-    }   
+    }
 
     // check credentials
     ProcessErrorCode ec = checkCredentials(username, password);
@@ -223,14 +220,15 @@ Session::ProcessErrorCode Session::processJoin(string username, string password)
     return OK;
 }
 
-Session::ProcessErrorCode Session::processMove(string /* direction */)
+ProcessErrorCode Session::processMove(string /* direction */)
 {
     // todo: register move for next tick
     __assert_fail("Not implemented", __FILE__, __LINE__, __func__);
 }
 
-Session::ProcessErrorCode Session::processChat(string /* message */)
+ProcessErrorCode Session::processChat(string /* message */)
 {
-    // todo: send message to all players
-    __assert_fail("Not implemented", __FILE__, __LINE__, __func__);
+    // send error packet due to not implemented
+    this->sendPacket(error, {"NOT_IMPLEMENTED", "Chat is not implemented (yet)"});
+    return ERROR;
 }

@@ -10,27 +10,54 @@
 #include "game.hpp"
 
 using boost::asio::ip::tcp;
+using game::Game;
+using game::Player;
 using std::cout;
 using std::endl;
 using std::string;
-using std::vector;
 using std::stringstream;
-using game::Game;
-using game::Player;
+using std::vector;
 
 // forward declarations
 class Session;
+
+enum ProcessErrorCode
+{
+    OK,
+    ERROR
+};
+
+enum ServerPacketType
+{
+    motd,
+    error,
+    game_pkg,
+    pos,
+    player,
+    tick,
+    die,
+    message,
+    win,
+    lose
+};
+
+// enum ClientPacketType // not used rn
+// {
+//     join,
+//     move,
+//     chat
+// };
 
 class Server
 {
 private:
     tcp::acceptor acceptor_;
-    vector<std::shared_ptr<Session>*> sessions_;
+    vector<std::shared_ptr<Session> *> sessions_;
 
 public:
     Server(boost::asio::io_context &io_context, short port)
         : acceptor_(io_context, tcp::endpoint(tcp::v4(), port)),
-            sessions_()
+          sessions_()
     {
         cout << "Server listening on port " << colorize(std::to_string(port), cyan) << endl;
 
@@ -49,43 +76,16 @@ private:
 class Session
     : public std::enable_shared_from_this<Session>
 {
-public:
-    enum ProcessErrorCode
-    {
-        OK,
-        ERROR
-    };
-
-    enum ServerPacketType
-    {
-        motd,
-        error,
-        game,
-        pos,
-        player,
-        tick,
-        die,
-        message,
-        win,
-        lose
-    };
-
-    // enum ClientPacketType // not used rn
-    // {
-    //     join,
-    //     move,
-    //     chat
-    // };
-
 private:
     tcp::socket socket_;
+    
     enum
     {
         max_length = 1024
     };
 
     // player data
-    Player* m_player;
+    Player *m_player;
 
 public:
     Session(tcp::socket socket)
@@ -105,14 +105,14 @@ public:
         do_read();
     }
 
-    ProcessErrorCode process(string data);
+    void sendPacket(ServerPacketType type, vector<string> args);
 
 private:
     void do_read();
 
     void do_write(string data);
 
-    void sendPacket(ServerPacketType type, vector<string> args);
+    ProcessErrorCode process(string data);
 
     string to_string(ServerPacketType type);
 
