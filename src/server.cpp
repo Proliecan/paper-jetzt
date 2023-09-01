@@ -8,7 +8,7 @@ void Server::do_accept()
             if (!ec)
             {
                 // create new session
-                std::shared_ptr<Session> session = std::make_shared<Session>(std::move(socket));
+                std::shared_ptr<Session> session = std::make_shared<Session>(std::move(socket), this);
                 sessions_.push_back(&session);
 
                 // start session
@@ -141,6 +141,11 @@ ProcessErrorCode Session::process(string data)
     return ERROR;
 }
 
+void Server::sendPacketToAll(ServerPacketType type, vector<string> /* args */)
+{
+    std::cerr << Session::to_string(type) << "AAA" << endl; //std::out is buffered, std::cerr is not
+}
+
 void Session::sendPacket(ServerPacketType type, vector<string> args)
 {
     // construct packet
@@ -226,9 +231,10 @@ ProcessErrorCode Session::processMove(string /* direction */)
     __assert_fail("Not implemented", __FILE__, __LINE__, __func__);
 }
 
-ProcessErrorCode Session::processChat(string /* message */)
+ProcessErrorCode Session::processChat(string message)
 {
     // send error packet due to not implemented
-    this->sendPacket(error, {"NOT_IMPLEMENTED", "Chat is not implemented (yet)"});
+    // this->sendPacket(error, {"NOT_IMPLEMENTED", "Chat is not implemented (yet)"});
+    m_server->sendPacketToAll(ServerPacketType::message, {message});
     return ERROR;
 }

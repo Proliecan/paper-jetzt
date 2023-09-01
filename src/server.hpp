@@ -71,6 +71,9 @@ public:
 
 private:
     void do_accept();
+
+public:
+    void sendPacketToAll(ServerPacketType type, vector<string> args);
 };
 
 class Session
@@ -78,7 +81,8 @@ class Session
 {
 private:
     tcp::socket socket_;
-    
+    Server *m_server;
+
     enum
     {
         max_length = 1024
@@ -88,8 +92,9 @@ private:
     Player *m_player;
 
 public:
-    Session(tcp::socket socket)
+    Session(tcp::socket socket, Server *m_server)
         : socket_(std::move(socket)),
+          m_server(m_server),
           m_player(nullptr)
     {
         cout << colorize("New session with", color::yellow) << " " << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl;
@@ -106,6 +111,7 @@ public:
     }
 
     void sendPacket(ServerPacketType type, vector<string> args);
+    static string to_string(ServerPacketType type);
 
 private:
     void do_read();
@@ -114,7 +120,6 @@ private:
 
     ProcessErrorCode process(string data);
 
-    string to_string(ServerPacketType type);
 
     // process client packets
     ProcessErrorCode processJoin(string username, string password);

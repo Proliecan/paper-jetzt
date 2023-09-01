@@ -12,7 +12,8 @@ int main(int argc, char *argv[])
 
         boost::asio::io_context io_context;
 
-        Server s(io_context, std::atoi(argv[1]));
+        // server has to live on the heap to not cause segfauls daah
+        new Server(io_context, std::atoi(argv[1]));
 
         io_context.run();
     }
