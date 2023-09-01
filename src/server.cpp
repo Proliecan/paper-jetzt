@@ -245,8 +245,6 @@ ProcessErrorCode Session::processMove(string /* direction */)
 
 ProcessErrorCode Session::processChat(string message)
 {
-    // send error packet due to not implemented
-    // this->sendPacket(error, {"NOT_IMPLEMENTED", "Chat is not implemented (yet)"});
     m_server->sendPacketToAll(ServerPacketType::message, {message});
     return ERROR;
 }
