@@ -9,7 +9,7 @@ void Server::do_accept()
             {
                 // create new session
                 std::shared_ptr<Session> session = std::make_shared<Session>(std::move(socket), this);
-                sessions_.push_back(&session);
+                sessions_.push_back(session);
 
                 // start session
                 session->start();
@@ -141,15 +141,19 @@ ProcessErrorCode Session::process(string data)
     return ERROR;
 }
 
-void Server::sendPacketToAll(ServerPacketType type, vector<string> /* args */)
+void Server::sendPacketToAll(ServerPacketType type, vector<string> args)
 {
-    std::cerr << Session::to_string(type) << "AAA" << endl; //std::out is buffered, std::cerr is not
+    // send packet to all sessions
+    for (std::shared_ptr<Session> session : sessions_)
+    {
+        session->sendPacket(type, args);
+    }
 }
 
 void Session::sendPacket(ServerPacketType type, vector<string> args)
 {
     // construct packet
-    string packet = to_string(type) + "|";
+    string packet = Server::to_string(type) + "|";
     for (string arg : args)
     {
         packet += arg + " ";
@@ -160,7 +164,7 @@ void Session::sendPacket(ServerPacketType type, vector<string> args)
     do_write(packet);
 }
 
-string Session::to_string(ServerPacketType type)
+string Server::to_string(ServerPacketType type)
 {
     switch (type)
     {

@@ -52,7 +52,7 @@ class Server
 {
 private:
     tcp::acceptor acceptor_;
-    vector<std::shared_ptr<Session> *> sessions_;
+    vector<std::shared_ptr<Session>> sessions_;
 
 public:
     Server(boost::asio::io_context &io_context, short port)
@@ -74,6 +74,8 @@ private:
 
 public:
     void sendPacketToAll(ServerPacketType type, vector<string> args);
+    static string to_string(ServerPacketType type);
+
 };
 
 class Session
@@ -111,7 +113,6 @@ public:
     }
 
     void sendPacket(ServerPacketType type, vector<string> args);
-    static string to_string(ServerPacketType type);
 
 private:
     void do_read();
