@@ -172,6 +172,13 @@ ProcessErrorCode Session::process(string data)
             return ERROR;
         }
 
+        // check if player has joined
+        if (!hasJoined())
+        {
+            this->sendPacket(error, {"NOT_JOINED", "You have not joined the game yet"});
+            return ERROR;
+        }
+
         processChat(args[0]);
         return OK;
     }
