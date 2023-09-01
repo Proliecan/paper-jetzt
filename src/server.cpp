@@ -20,6 +20,46 @@ void Server::do_accept()
         });
 }
 
+
+string Server::to_string(ServerPacketType type)
+{
+    switch (type)
+    {
+    case motd:
+        return "motd";
+    case error:
+        return "error";
+    case game_pkg:
+        return "game";
+    case pos:
+        return "pos";
+    case player:
+        return "player";
+    case tick:
+        return "tick";
+    case die:
+        return "die";
+    case message:
+        return "message";
+    case win:
+        return "win";
+    case lose:
+        return "lose";
+    default:
+        return "unknown";
+    }
+}
+
+
+void Server::sendPacketToAll(ServerPacketType type, vector<string> args)
+{
+    // send packet to all sessions
+    for (Session*session : sessions_)
+    {
+        session->sendPacket(type, args);
+    }
+}
+
 void Session::do_read()
 {
     char *data_ = new char[max_length];
@@ -140,15 +180,6 @@ ProcessErrorCode Session::process(string data)
     return ERROR;
 }
 
-void Server::sendPacketToAll(ServerPacketType type, vector<string> args)
-{
-    // send packet to all sessions
-    for (Session*session : sessions_)
-    {
-        session->sendPacket(type, args);
-    }
-}
-
 void Session::sendPacket(ServerPacketType type, vector<string> args)
 {
     // construct packet
@@ -161,35 +192,6 @@ void Session::sendPacket(ServerPacketType type, vector<string> args)
 
     // send packet
     do_write(packet);
-}
-
-string Server::to_string(ServerPacketType type)
-{
-    switch (type)
-    {
-    case motd:
-        return "motd";
-    case error:
-        return "error";
-    case game_pkg:
-        return "game";
-    case pos:
-        return "pos";
-    case player:
-        return "player";
-    case tick:
-        return "tick";
-    case die:
-        return "die";
-    case message:
-        return "message";
-    case win:
-        return "win";
-    case lose:
-        return "lose";
-    default:
-        return "unknown";
-    }
 }
 
 bool Session::hasJoined()
