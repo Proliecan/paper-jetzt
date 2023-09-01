@@ -52,7 +52,7 @@ class Server
 {
 private:
     tcp::acceptor acceptor_;
-    vector<std::shared_ptr<Session>> sessions_;
+    vector<Session *> sessions_;
 
 public:
     Server(boost::asio::io_context &io_context, short port)
@@ -75,7 +75,6 @@ private:
 public:
     void sendPacketToAll(ServerPacketType type, vector<string> args);
     static string to_string(ServerPacketType type);
-
 };
 
 class Session
@@ -120,7 +119,6 @@ private:
     void do_write(string data);
 
     ProcessErrorCode process(string data);
-
 
     // process client packets
     ProcessErrorCode processJoin(string username, string password);

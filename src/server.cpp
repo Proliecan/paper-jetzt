@@ -8,7 +8,8 @@ void Server::do_accept()
             if (!ec)
             {
                 // create new session
-                std::shared_ptr<Session> session = std::make_shared<Session>(std::move(socket), this);
+                // on heap
+                Session *session = new Session(std::move(socket), this);
                 sessions_.push_back(session);
 
                 // start session
@@ -21,13 +22,12 @@ void Server::do_accept()
 
 void Session::do_read()
 {
-    auto self(shared_from_this());
     char *data_ = new char[max_length];
     // clear data
     memset(data_, 0, max_length);
 
     socket_.async_read_some(boost::asio::buffer(data_, max_length),
-                            [this, self, data_](boost::system::error_code ec, std::size_t /* length */)
+                            [this, data_](boost::system::error_code ec, std::size_t /* length */)
                             {
                                 if (!ec)
                                 {
@@ -58,11 +58,10 @@ void Session::do_read()
 
 void Session::do_write(string data)
 {
-    auto self(shared_from_this());
     // calc length of data
     std::size_t length = data.length();
     boost::asio::async_write(socket_, boost::asio::buffer(data.c_str(), length),
-                             [this, self, data](boost::system::error_code ec, std::size_t /*length*/)
+                             [this, data](boost::system::error_code ec, std::size_t /*length*/)
                              {
                                  if (!ec)
                                  {
@@ -144,7 +143,7 @@ ProcessErrorCode Session::process(string data)
 void Server::sendPacketToAll(ServerPacketType type, vector<string> args)
 {
     // send packet to all sessions
-    for (std::shared_ptr<Session> session : sessions_)
+    for (Session*session : sessions_)
     {
         session->sendPacket(type, args);
     }
