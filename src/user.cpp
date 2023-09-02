@@ -38,6 +38,9 @@ void UserDatabase::loadFromFile(string filepath)
         // add user to database
         users_[username] = password_hash;
     }
+
+    // log number of users loaded
+    std::cout << "Loaded " << users_.size() << " users" << std::endl;
 }
 
 void UserDatabase::addUser(string username, string password)
