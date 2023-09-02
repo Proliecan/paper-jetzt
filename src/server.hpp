@@ -8,6 +8,7 @@
 #include <boost/asio.hpp>
 
 #include "game.hpp"
+#include "user.hpp"
 
 using boost::asio::ip::tcp;
 using game::Game;
@@ -52,12 +53,16 @@ class Server
 {
 private:
     tcp::acceptor acceptor_;
-    vector<Session *> sessions_;
 
 public:
-    Server(boost::asio::io_context &io_context, short port)
+    vector<Session *> sessions_;
+    UserDatabase *m_user_db;
+
+public:
+    Server(boost::asio::io_context &io_context, short port, UserDatabase *user_db)
         : acceptor_(io_context, tcp::endpoint(tcp::v4(), port)),
-          sessions_()
+          sessions_(),
+          m_user_db(user_db)
     {
         cout << "Server listening on port " << colorize(std::to_string(port), cyan) << endl;
 

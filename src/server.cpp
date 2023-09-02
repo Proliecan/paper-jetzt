@@ -20,7 +20,6 @@ void Server::do_accept()
         });
 }
 
-
 string Server::to_string(ServerPacketType type)
 {
     switch (type)
@@ -50,11 +49,10 @@ string Server::to_string(ServerPacketType type)
     }
 }
 
-
 void Server::sendPacketToAll(ServerPacketType type, vector<string> args)
 {
     // send packet to all sessions
-    for (Session*session : sessions_)
+    for (Session *session : sessions_)
     {
         session->sendPacket(type, args);
     }
@@ -153,6 +151,12 @@ ProcessErrorCode Session::process(string data)
     }
     else if (ptype == "move")
     {
+        // check if player has joined
+        if (!hasJoined())
+        {
+            this->sendPacket(error, {"NOT_JOINED", "You have not joined the game yet"});
+            return ERROR;
+        }
         // check for one arg that has to be one of up, right, down or left
         if (args.size() != 1 || (args[0] != "up" && args[0] != "right" && args[0] != "down" && args[0] != "left"))
         {
@@ -206,9 +210,32 @@ bool Session::hasJoined()
     return m_player != nullptr;
 }
 
-ProcessErrorCode Session::checkCredentials(string /* username */, string /* password */)
+ProcessErrorCode Session::checkCredentials(string username, string password)
 {
-    // todo: check credentials
+    if (m_server->m_user_db->userExists(username))
+    {
+
+        // check password
+        if (m_server->m_user_db->checkPassword(username, password))
+        {
+            // print debug message
+            cout << colorize("Existing user", color::yellow) << " " << colorize(username, cyan) << " "
+                 << colorize("joined", color::yellow) << endl;
+            return OK;
+        }
+        else
+        {
+            return ERROR;
+        }
+    }
+
+    // add user
+    m_server->m_user_db->addUser(username, password);
+
+    // print debug message
+    cout << colorize("New user", color::yellow) << " " << colorize(username, cyan) << " "
+         << colorize("joined", color::yellow) << endl;
+
     return OK;
 }
 
@@ -219,6 +246,16 @@ ProcessErrorCode Session::processJoin(string username, string password)
         // send error packet
         this->sendPacket(error, {"ALREADY_JOINED", "You have already joined"});
         return ERROR;
+    }
+
+    // if there is already another session with this username, send error packet
+    for (Session *session : m_server->sessions_)
+    {
+        if (session->hasJoined() && session->m_player->getName() == username)
+        {
+            this->sendPacket(error, {"ALREADY_JOINED", "You joined with this username on another session"});
+            return ERROR;
+        }
     }
 
     // check credentials
@@ -239,8 +276,9 @@ ProcessErrorCode Session::processJoin(string username, string password)
 
 ProcessErrorCode Session::processMove(string /* direction */)
 {
-    // todo: register move for next tick
-    __assert_fail("Not implemented", __FILE__, __LINE__, __func__);
+    // send error packet
+    this->sendPacket(error, {"NOT_IMPLEMENTED", "Packet type \"move\" is not implemented yet"});
+    return ERROR;
 }
 
 ProcessErrorCode Session::processChat(string message)
