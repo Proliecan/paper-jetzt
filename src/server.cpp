@@ -91,6 +91,20 @@ void Session::do_read()
 
                                     do_read();
                                 }
+                                else
+                                {
+                                    // if error is eof
+                                    if (ec == boost::asio::error::eof)
+                                    {
+                                        // delete session
+                                        delete this;
+                                        return;
+                                    }
+                                    // log the error information
+                                    cout << colorize("Error on session with ", color::red)
+                                         << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl
+                                         << colorize("Error: ", color::red) << ec.message() << endl;
+                                }
                             });
 }
 

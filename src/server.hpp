@@ -109,6 +109,8 @@ public:
     ~Session()
     {
         cout << colorize("Ending session with ", color::yellow) << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl;
+        socket_.close();
+        delete m_player;
     }
 
     void start()
