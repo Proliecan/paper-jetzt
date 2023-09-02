@@ -1,5 +1,6 @@
 ---
     creator: freehuntx
+    with-changes-by: proliecan
     creator-git: https://github.com/freehuntx
     source: https://raw.githubusercontent.com/freehuntx/gpn-tron/master/PROTOCOL.md
     date-of-access: 2023-08-18
@@ -25,7 +26,7 @@
         AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
         LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
         OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-        SOFTWARE. 
+        SOFTWARE.
 ---
 
 # Protocol
@@ -99,9 +100,8 @@ It contains information about the map size and the current player id.
 |---|--------|-------------------------------|
 | 1 | Number | The width of the current map |
 | 2 | Number | The height of the current map |
-| 3 | Number | The current player id |
 
-**Example:** `game|100|100|5`
+**Example:** `game|100|100`
 
 ### pos
 
@@ -112,25 +112,11 @@ The pos packet is sent by the server to inform the client about a players curren
 **Arguments:**  
 | # | Type | Description |
 |---|--------|--------------------------------------------------------------------|
-| 1 | Number | The player id |
+| 1 | string | The player name |
 | 2 | Number | x position of the player |
 | 3 | Number | y position of the player |
 
-**Example:** `pos|5|3|8`
-
-### player
-
-The player packet is sent by the server to share informations of an player.
-
-**Name:** player  
-**Sender:** Server  
-**Arguments:**  
-| # | Type | Description |
-|---|--------|--------------------------------------------------------------------|
-| 1 | Number | The player id |
-| 2 | String | The name of the player |
-
-**Example:** `player|3|Coolguy`
+**Example:** `pos|ranbot|3|8`
 
 ### tick
 
@@ -151,10 +137,10 @@ The die packet is sent by the server to inform the client about a players who di
 **Arguments:**  
 | # | Type | Description |
 |---|--------|--------------------------------------------------------------------|
-| 1... | Number | The player id |
+| 1... |  string | The player name |
 
-**Example (1 dead player):** `die|5`  
-**Example (4 dead player):** `die|5|8|9|13`
+**Example (1 dead player):** `die|testBot`  
+**Example (4 dead player):** `die|ranbot|testBot|proliecan`
 
 ### move
 
@@ -191,10 +177,10 @@ The message packet is sent by the server to inform about a chat message of anoth
 **Arguments:**  
 | # | Type | Description |
 |---|--------|-----------------------------|
-| 1 | Number | The player id |
+| 1 |  string | The player name |
 | 2 | String | The chat message to display |
 
-**Example:** `message|7|I am so cool`
+**Example:** `message|ranbot|I am so cool`
 
 ### win
 

@@ -131,23 +131,19 @@ void Session::do_write(string data)
 ProcessErrorCode Session::process(string data)
 {
     // split packet type and arguments
-    // <ptype> | <arg1> <arg2> ...
+    // <ptype> | <arg1> | <arg2> ... // ignore whitespace
     stringstream stream(data);
     string ptype;
     vector<string> args;
 
-    std::getline(stream, ptype, '|');
-    ptype = strip(ptype);
+    // get packet type
+    getline(stream, ptype, '|');
 
+    // get arguments
     string arg;
-    while (std::getline(stream, arg, ' '))
+    while (getline(stream, arg, '|'))
     {
-        // drop empty args
-        if (arg == "")
-        {
-            continue;
-        }
-        args.push_back(strip(arg));
+        args.push_back(arg);
     }
 
     // process packet
@@ -208,10 +204,10 @@ ProcessErrorCode Session::process(string data)
 void Session::sendPacket(ServerPacketType type, vector<string> args)
 {
     // construct packet
-    string packet = Server::to_string(type) + "|";
+    string packet = Server::to_string(type);
     for (string arg : args)
     {
-        packet += arg + " ";
+        packet += "|" + arg;
     }
     packet += "\n";
 
