@@ -193,7 +193,7 @@ ProcessErrorCode Session::process(string data)
             return ERROR;
         }
 
-        processChat(args[0]);
+        processChat(m_player, args[0]);
         return OK;
     }
 
@@ -291,8 +291,8 @@ ProcessErrorCode Session::processMove(string /* direction */)
     return ERROR;
 }
 
-ProcessErrorCode Session::processChat(string message)
+ProcessErrorCode Session::processChat(Player* player, string message)
 {
-    m_server->sendPacketToAll(ServerPacketType::message, {message});
+    m_server->sendPacketToAll(ServerPacketType::message, {player->getName(), message});
     return ERROR;
 }

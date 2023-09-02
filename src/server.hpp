@@ -129,10 +129,10 @@ private:
 
     // process client packets
     ProcessErrorCode processJoin(string username, string password);
-    ProcessErrorCode processMove(string /* direction */);
-    ProcessErrorCode processChat(string /* message */);
+    ProcessErrorCode processMove(string direction);
+    ProcessErrorCode processChat(Player* player, string message);
 
-    ProcessErrorCode checkCredentials(string /* username */, string /* password */);
+    ProcessErrorCode checkCredentials(string username, string password);
 
     // utility functions
     bool hasJoined();
