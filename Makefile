@@ -29,4 +29,4 @@ $(objDir)/%.o: $(srcDir)/%.cpp $(hdr)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
 clean:
-	rm -rfv $(objDir) $(binDir)
+	rm -rfv $(objDir) $(bin)
