@@ -41,11 +41,9 @@ $(serverObjDir)/%.o: $(serverSrcDir)/%.cpp $(serverHdr) $(helperHdr)
 
 bot: $(botBin)
 $(botBin): $(botObj) $(helperObj)
-	@echo Building bot... $@
 	@mkdir -p $(binDir)
 	$(CC) $(CFLAGS) -o $@ $^
 $(botObjDir)/%.o: $(botSrcDir)/%.cpp $(botHdr) $(helperHdr)
-	@echo Building bot... $@
 	@mkdir -p $(botObjDir)
 	$(CC) $(CFLAGS) -c -o $@ $<
 
