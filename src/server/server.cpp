@@ -273,8 +273,8 @@ ProcessErrorCode Session::checkCredentials(string username, string password)
         if (m_server->m_user_db->checkPassword(username, password))
         {
             // print debug message
-            cout << colorize("Existing user", color::yellow) << " " << colorize(username, cyan) << " "
-                 << colorize("joined", color::yellow) << endl;
+            cout << "Existing user" << " " << colorize(username, cyan) << " "
+                 << "joined"<< endl;
             return OK;
         }
         else
@@ -287,8 +287,8 @@ ProcessErrorCode Session::checkCredentials(string username, string password)
     m_server->m_user_db->addUser(username, password);
 
     // print debug message
-    cout << colorize("New user", color::yellow) << " " << colorize(username, cyan) << " "
-         << colorize("joined", color::yellow) << endl;
+    cout << "New user" << " " << colorize(username, cyan) << " "
+         << "joined"<< endl;
 
     return OK;
 }
