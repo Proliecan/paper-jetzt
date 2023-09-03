@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <iostream>
 
 #include "helpers.hpp"
 
@@ -38,7 +39,7 @@ namespace game
             color c = nearestColorFromHexCode(i_color);
             cout << colorize("Player " + i_name + " joined the game", c) << endl;
             cout << colorize("Color: " + i_color, c) << endl;
-      };
+        };
 
         string getName() { return m_name; };
         string getColor() { return m_color; };
@@ -54,15 +55,24 @@ namespace game
         vector<Player> *players;
 
     public:
-        Game(int width, int height)
+        Game(int width, int height, vector<Player> *players)
             : width(width),
               height(height),
-              players(new vector<Player>){};
+              players(players){};
+
+        Game(vector<Player> *players)
+            : width(10*players->size()),
+              height(10*players->size()),
+              players(players){};
 
         int getWidth() { return width; };
         int getWeight() { return height; };
         vector<Player> *getPlayers() { return players; };
 
-        void addPlayer(Player p) { players->push_back(p); };
+        bool isRunning() { return true; };
+
+    public:
+        void start();
     };
+
 }

@@ -53,9 +53,11 @@ class Server
 {
 private:
     tcp::acceptor acceptor_;
+    vector<Session *> sessions_;
+    // running game
+    Game *m_game;
 
 public:
-    vector<Session *> sessions_;
     UserDatabase *m_user_db;
 
 public:
@@ -80,6 +82,15 @@ private:
 public:
     void sendPacketToAll(ServerPacketType type, vector<string> args);
     static string to_string(ServerPacketType type);
+
+    bool isPlayerLoggedIn(string username);
+    unsigned int getNumPlayersLoggedIn();
+
+    void startGame();
+    bool isGameRunning() { 
+        if (m_game == nullptr) return false;
+        return m_game->isRunning();
+     };
 };
 
 class Session
@@ -120,6 +131,10 @@ public:
 
     void sendPacket(ServerPacketType type, vector<string> args);
 
+    // utility functions
+    bool hasJoined();
+    Player *getPlayer() { return m_player; };
+
 private:
     void do_read();
 
@@ -130,10 +145,7 @@ private:
     // process client packets
     ProcessErrorCode processJoin(string username, string password);
     ProcessErrorCode processMove(string direction);
-    ProcessErrorCode processChat(Player* player, string message);
+    ProcessErrorCode processChat(Player *player, string message);
 
     ProcessErrorCode checkCredentials(string username, string password);
-
-    // utility functions
-    bool hasJoined();
 };

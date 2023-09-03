@@ -58,6 +58,50 @@ void Server::sendPacketToAll(ServerPacketType type, vector<string> args)
     }
 }
 
+void Server::startGame()
+{
+    // create players vector
+    vector<Player> *players = new vector<Player>;
+    for (Session *session : sessions_)
+    {
+        if (session->hasJoined())
+        {
+            players->push_back(*session->getPlayer());
+        }
+    }
+
+    // create game
+    Game *game = new Game(players);
+
+    // start game
+    game->start();
+}
+
+bool Server::isPlayerLoggedIn(string username)
+{
+    for (Session *session : sessions_)
+    {
+        if (session->hasJoined() && session->getPlayer()->getName() == username)
+        {
+            return true;
+        }
+    }
+    return false;
+}
+
+unsigned int Server::getNumPlayersLoggedIn()
+{
+    int num = 0;
+    for (Session *session : sessions_)
+    {
+        if (session->hasJoined())
+        {
+            num++;
+        }
+    }
+    return num;
+}
+
 void Session::do_read()
 {
     char *data_ = new char[max_length];
@@ -259,15 +303,11 @@ ProcessErrorCode Session::processJoin(string username, string password)
     }
 
     // if there is already another session with this username, send error packet
-    for (Session *session : m_server->sessions_)
+    if (m_server->isPlayerLoggedIn(username))
     {
-        if (session->hasJoined() && session->m_player->getName() == username)
-        {
-            this->sendPacket(error, {"ALREADY_JOINED", "You joined with this username on another session"});
-            return ERROR;
-        }
+        this->sendPacket(error, {"ALREADY_JOINED", "You joined with this username on another session"});
+        return ERROR;
     }
-
     // check credentials
     ProcessErrorCode ec = checkCredentials(username, password);
 
@@ -281,6 +321,12 @@ ProcessErrorCode Session::processJoin(string username, string password)
     // create player
     m_player = new Player(username, helpers::randomHexColor());
 
+    // if there are 2 or more players and no game is running, one should start
+    if (m_server->getNumPlayersLoggedIn() >= 2 && !m_server->isGameRunning())
+    {
+        m_server->startGame();
+    }
+
     return OK;
 }
 
@@ -291,7 +337,7 @@ ProcessErrorCode Session::processMove(string /* direction */)
     return ERROR;
 }
 
-ProcessErrorCode Session::processChat(Player* player, string message)
+ProcessErrorCode Session::processChat(Player *player, string message)
 {
     m_server->sendPacketToAll(ServerPacketType::message, {player->getName(), message});
     return ERROR;
