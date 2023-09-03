@@ -4,7 +4,7 @@
 #include <vector>
 #include <iostream>
 
-#include "helpers.hpp"
+#include "../helpers.hpp"
 
 using std::cout;
 using std::endl;

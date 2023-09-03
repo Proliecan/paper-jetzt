@@ -1,5 +1,5 @@
 #include "bot.hpp"
-#include "helpers.hpp"
+#include "../helpers.hpp"
 
 using namespace bot;
 using namespace helpers;

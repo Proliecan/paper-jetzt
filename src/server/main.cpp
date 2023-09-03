@@ -4,17 +4,13 @@
 
 #include "server.hpp"
 #include "user.hpp"
-#include "bot.hpp"
 
 using std::string;
 using std::vector;
-using namespace bot;
 
 // forward declarations
 void print_usage(char *argv[]);
 UserDatabase *init_user_db(char *argv[]);
-Bot *init_bot(string name, string password, short port);
-vector<Bot *> init_bots(vector<string> names, vector<string> passwords, short port);
 
 int main(int argc, char *argv[])
 {
