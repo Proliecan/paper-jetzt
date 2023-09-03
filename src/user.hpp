@@ -14,7 +14,7 @@ class User
 class UserDatabase
 {
     string filepath_;
-    std::map<string, string> users_;
+    std::map<string, string> *users_;
 
 public:
     UserDatabase(string filepath)
