@@ -12,7 +12,11 @@ namespace helpers
 
     string stripEndline(string text)
     {
-        return text.substr(0, text.length() - 1);
+        if (text[text.length() - 1] == '\n')
+        {
+            return text.substr(0, text.length() - 1);
+        }
+        return text;
     }
 
     color nearestColorFromHexCode(string hexcode)

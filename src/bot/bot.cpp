@@ -7,7 +7,7 @@ using namespace helpers;
 void Bot::run()
 {
     connect();
-    send("join|" + name + "|" + password);
+    send("join|" + name + "|" + password + "\n");
 }
 
 void Bot::connect()
@@ -21,8 +21,8 @@ void Bot::connect()
 void Bot::send(string message)
 {
     std::size_t length = message.length();
-    // asynchronous write
-    boost::asio::async_write(socket, boost::asio::buffer(message, length), [&](boost::system::error_code ec, std::size_t /*length*/)
+    boost::asio::async_write(socket, boost::asio::buffer(message.c_str(), length),
+                             [&](boost::system::error_code ec, std::size_t /*length*/)
                              {
         if (!ec)
         {
@@ -88,8 +88,6 @@ int main(int argc, char *argv[])
 
         Bot bot(io_context, name, password, port);
         bot.run();
-
-
     }
     catch (std::exception &e)
     {
