@@ -87,10 +87,12 @@ public:
     unsigned int getNumPlayersLoggedIn();
 
     void startGame();
-    bool isGameRunning() { 
-        if (m_game == nullptr) return false;
+    bool isGameRunning()
+    {
+        if (m_game == nullptr)
+            return false;
         return m_game->isRunning();
-     };
+    };
 };
 
 class Session
@@ -119,7 +121,18 @@ public:
 
     ~Session()
     {
-        cout << colorize("Ending session with ", color::yellow) << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl;
+
+        // check socket endpoint
+        try
+        {
+            socket_.remote_endpoint();
+            cout << colorize("Ending session with ", color::yellow) << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl;
+        }
+        catch (const boost::system::system_error &e)
+        {
+            cout << colorize("Ending session with ", color::yellow) << colorize("unknown", cyan) << endl;
+        }
+
         socket_.close();
         delete m_player;
     }

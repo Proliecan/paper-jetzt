@@ -164,10 +164,21 @@ void Session::do_write(string data)
                                      // strip endline from data
                                      string data_str = stripEndline(data);
 
-                                     cout << colorize("<", color::green) << " "
-                                          << colorize(socket_.remote_endpoint().address().to_string(), cyan) << ": "
-                                          << data_str << endl
-                                          << endl;
+                                     // check existence of endpoint
+                                     try
+                                     {
+                                         socket_.remote_endpoint();
+                                         cout << colorize("<", color::green) << " "
+                                              << colorize(socket_.remote_endpoint().address().to_string(), cyan) << ": "
+                                              << data_str << endl
+                                              << endl;
+                                     }
+                                     catch (boost::system::system_error &e)
+                                     {
+                                         // delete session
+                                         std::cerr << colorize("Sending data failed: ", color::red) << e.what() << endl;
+                                         return;
+                                     }
                                  }
                              });
 }
@@ -273,8 +284,9 @@ ProcessErrorCode Session::checkCredentials(string username, string password)
         if (m_server->m_user_db->checkPassword(username, password))
         {
             // print debug message
-            cout << "Existing user" << " " << colorize(username, cyan) << " "
-                 << "joined"<< endl;
+            cout << "Existing user"
+                 << " " << colorize(username, cyan) << " "
+                 << "joined" << endl;
             return OK;
         }
         else
@@ -287,8 +299,9 @@ ProcessErrorCode Session::checkCredentials(string username, string password)
     m_server->m_user_db->addUser(username, password);
 
     // print debug message
-    cout << "New user" << " " << colorize(username, cyan) << " "
-         << "joined"<< endl;
+    cout << "New user"
+         << " " << colorize(username, cyan) << " "
+         << "joined" << endl;
 
     return OK;
 }

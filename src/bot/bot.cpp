@@ -8,6 +8,7 @@ void Bot::run()
 {
     connect();
     send("join|" + name + "|" + password + "\n");
+    send("ready\n");
 }
 
 void Bot::connect()
