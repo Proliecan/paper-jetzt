@@ -33,13 +33,7 @@ namespace game
         Player(string i_name, string i_color)
             : m_name(i_name),
               m_color(i_color),
-              trace(new vector<position>)
-        {
-            // Print player info
-            color c = nearestColorFromHexCode(i_color);
-            cout << colorize("Player " + i_name + " joined the game", c) << endl;
-            cout << colorize("Color: " + i_color, c) << endl;
-        };
+              trace(new vector<position>){};
 
         string getName() { return m_name; };
         string getColor() { return m_color; };

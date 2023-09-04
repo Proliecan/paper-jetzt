@@ -196,8 +196,7 @@ void Session::do_write(string data)
                                          socket_.remote_endpoint();
                                          cout << colorize("<", color::green) << " "
                                               << colorize(socket_.remote_endpoint().address().to_string(), cyan) << ": "
-                                              << data_str << endl
-                                              << endl;
+                                              << data_str << endl;
                                      }
                                      catch (boost::system::system_error &e)
                                      {
@@ -311,8 +310,8 @@ ProcessErrorCode Session::checkCredentials(string username, string password)
         {
             // print debug message
             cout << "Existing user"
-                 << " " << colorize(username, cyan) << " "
-                 << "joined" << endl;
+                 << " " << colorize(username, cyan)
+                 << endl;
             return OK;
         }
         else
@@ -326,8 +325,8 @@ ProcessErrorCode Session::checkCredentials(string username, string password)
 
     // print debug message
     cout << "New user"
-         << " " << colorize(username, cyan) << " "
-         << "joined" << endl;
+         << " " << colorize(username, cyan)
+         << endl;
 
     return OK;
 }
