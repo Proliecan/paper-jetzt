@@ -1,43 +1,37 @@
 #pragma once
 
-#include <iostream>
+#include "../helpers.hpp"
+
 #include <string>
+#include <vector>
 #include <boost/asio.hpp>
 
 using boost::asio::ip::tcp;
-using std::string;
+using string = std::string;
 
 namespace bot
 {
     class Bot
     {
-    private:
-        // socket
-        boost::asio::io_context &io_context;
-        tcp::socket socket;
-
-        string name;
-        string password;
-        short port = 1234;
-
     public:
-        Bot(boost::asio::io_context &io_context, string name, string password, short port)
-            : io_context(io_context),
-              socket(io_context),
-              name(name),
-              password(password),
-              port(port){};
-        ~Bot()
-        {
-            socket.close();
-        };
+        short port;
+        string username;
+        string password;
+        tcp::socket sock;
 
-        void run();
+        Bot(boost::asio::io_context &io_context, short port, string username, string password)
+            : port(port),
+              username(username),
+              password(password),
+              sock(io_context){};
+
+        void connect();
+        void join();
+        void do_read();
+        void do_write(string msg);
 
     private:
-        void connect();
-        void send(string message);
-        void receive();
-        void process(string message);
+        string read_buffer;
+        string write_buffer;
     };
 }

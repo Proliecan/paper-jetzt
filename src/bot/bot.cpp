@@ -1,108 +1,70 @@
 #include "bot.hpp"
 #include "../helpers.hpp"
 
-using namespace bot;
+#include <iostream>
+
+#include <string>
+#include <boost/asio.hpp>
+
 using namespace helpers;
 
-void Bot::run()
+namespace bot
 {
-    connect();
-    send("join|" + name + "|" + password + "\n");
-    send("ready\n");
-}
+    void Bot::connect()
+    {
+        tcp::resolver resolver = tcp::resolver(sock.get_executor());
+        boost::asio::connect(sock, resolver.resolve("localhost", std::to_string(port)));
+    }
 
-void Bot::connect()
-{
-    tcp::resolver resolver(io_context);
-    tcp::resolver::results_type endpoints = resolver.resolve("localhost", std::to_string(port));
+    void Bot::join()
+    {
+        do_write("join|" + username + "|" + password);
+    }
 
-    boost::asio::connect(socket, endpoints);
-}
+    void Bot::do_read()
+    {
+        char *data_ = new char[1024];
+        memset(data_, 0, 1024);
 
-void Bot::send(string message)
-{
-    std::size_t length = message.length();
-    boost::asio::async_write(socket, boost::asio::buffer(message.c_str(), length),
-                             [&](boost::system::error_code ec, std::size_t /*length*/)
+        sock.async_read_some(boost::asio::buffer(data_, 1024),
+                             [this, data_](boost::system::error_code ec, std::size_t /* length */)
                              {
-        if (!ec)
-        {
-            // log
-            std::cout << "Bot " << name << " sent message: " << message << std::endl;
-        }
-        else
-        {
-            std::cerr << "Error: " << ec.message() << "\n";
-        } });
-}
+                                 if (!ec)
+                                 {
+                                     // string from data_
+                                     string data = data_;
+                                     // delete data_
+                                     delete[] data_;
 
-void Bot::receive()
-{
-    // asynchronous read
-    char *data = new char[1024];
-    socket.async_read_some(boost::asio::buffer(data, 1024), [&](boost::system::error_code ec, std::size_t length)
-                           {
-        if (!ec)
-        {
-            // process message
-            string message(data, length);
-            process(message);
+                                     // strip endline if it exists
+                                     if (data.back() == '\n')
+                                     {
+                                         data.pop_back();
+                                     }
 
-            // receive next message
-            receive();
-        }
-        else
-        {
-            std::cerr << "Error: " << ec.message() << "\n";
-        } });
-}
-
-void Bot::process(string message)
-{
-    // log
-    std::cout << "Bot " << name << " received message: " << message << std::endl;
-    return;
-}
-
-// forward declarations
-void print_usage(char *argv[]);
-
-// main function
-int main(int argc, char *argv[])
-{
-    try
-    {
-        if (argc != 4)
-        {
-            print_usage(argv);
-            return 1;
-        }
-
-        string name = argv[1];
-        string password = argv[2];
-        short port = std::atoi(argv[3]);
-
-        // log
-        std::cout << "Starting bot " << name << "..." << std::endl;
-
-        boost::asio::io_context io_context;
-
-        Bot bot(io_context, name, password, port);
-        bot.run();
-    }
-    catch (std::exception &e)
-    {
-        std::cerr << "Exception: " << e.what() << "\n";
+                                     // log
+                                     std::cout << colorize(">", red) << " " << data << std::endl;
+                                 }
+                                 do_read();
+                             });
     }
 
-    return 0;
-}
+    void Bot::do_write(string msg)
+    {
+        // if message doesn't end with \n, add it
+        if (msg.back() != '\n')
+        {
+            msg += "\n";
+        }
 
-void print_usage(char *argv[])
-{
-    std::cerr << "Usage: " << argv[0]
-              << colorize(" <name>", color::red)
-              << colorize(" <password>", color::cyan)
-              << colorize(" <port>", color::green)
-              << std::endl;
+        boost::asio::async_write(sock, boost::asio::buffer(msg),
+                                 [this, msg](boost::system::error_code ec, std::size_t /* length */)
+                                 {
+                                     if (!ec)
+                                     {
+                                         // log
+                                         std::cout << colorize("<", green) << " " << msg;
+                                     }
+                                 });
+    }
 }
