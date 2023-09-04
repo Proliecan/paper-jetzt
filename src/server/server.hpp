@@ -85,6 +85,7 @@ public:
 
     bool isPlayerLoggedIn(string username);
     unsigned int getNumPlayersLoggedIn();
+    void eraseSession(Session *session);
 
     void startGame();
     bool isGameRunning()
@@ -134,6 +135,8 @@ public:
         }
 
         socket_.close();
+        // remove myself from server sessions list
+        m_server->eraseSession(this);
         delete m_player;
     }
 

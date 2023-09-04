@@ -102,6 +102,19 @@ unsigned int Server::getNumPlayersLoggedIn()
     return num;
 }
 
+void Server::eraseSession(Session* session){
+    // find session
+    for (unsigned int i = 0; i < sessions_.size(); i++)
+    {
+        if (sessions_[i] == session)
+        {
+            // erase session
+            sessions_.erase(sessions_.begin() + i);
+            return;
+        }
+    }
+}
+
 void Session::do_read()
 {
     char *data_ = new char[max_length];
