@@ -145,13 +145,7 @@ void Session::do_read()
                                          << data_str << endl;
 
                                     // process packet
-                                    ProcessErrorCode ec = process(data_str);
-                                    if (ec == ERROR)
-                                    {
-                                        cout << colorize("Packet processing failed on session with ", color::red)
-                                             << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl
-                                             << colorize("On packet: ", color::red) << data_str << endl;
-                                    }
+                                    process(data_str);
 
                                     do_read();
                                 }
