@@ -363,7 +363,9 @@ ProcessErrorCode Session::processJoin(string username, string password)
     // if there are 2 or more players and no game is running, one should start
     if (m_server->getNumPlayersLoggedIn() >= 2 && !m_server->isGameRunning())
     {
-        m_server->startGame();
+        // start game in new thread
+        std::thread t(&Server::startGame, m_server);
+        t.detach();
     }
 
     return OK;
