@@ -86,6 +86,7 @@ private:
 
 public:
     void sendPacketToAll(ServerPacketType type, vector<string> args);
+    void sendPacketToAllPlayers(ServerPacketType type, vector<string> args);
     static string to_string(ServerPacketType type);
 
     bool isPlayerLoggedIn(string username);

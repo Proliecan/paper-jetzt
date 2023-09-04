@@ -58,6 +58,18 @@ void Server::sendPacketToAll(ServerPacketType type, vector<string> args)
     }
 }
 
+void Server::sendPacketToAllPlayers(ServerPacketType type, vector<string> args)
+{
+    // send packet to all players
+    for (Session *session : sessions_)
+    {
+        if (session->hasJoined())
+        {
+            session->sendPacket(type, args);
+        }
+    }
+}
+
 void Server::startGame()
 {
     // create players vector
@@ -77,7 +89,7 @@ void Server::startGame()
     vector<string> args;
     args.push_back(std::to_string(game->getWidth()));
     args.push_back(std::to_string(game->getHeight()));
-    sendPacketToAll(game_pkg, args);
+    sendPacketToAllPlayers(game_pkg, args);
 
     // start game
     game->start();
