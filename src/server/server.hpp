@@ -1,5 +1,6 @@
 #include <cstdlib>
 #include <iostream>
+
 #include <memory>
 #include <utility>
 #include <string>
@@ -7,12 +8,9 @@
 #include <sstream>
 #include <boost/asio.hpp>
 
-#include "game.hpp"
 #include "user.hpp"
 
 using boost::asio::ip::tcp;
-using game::Game;
-using game::Player;
 using std::cout;
 using std::endl;
 using std::string;
@@ -21,6 +19,13 @@ using std::vector;
 
 // forward declarations
 class Session;
+
+#include "game.hpp"
+using game::Game;
+using game::Player;
+
+#include "../helpers.hpp"
+using namespace helpers;
 
 enum ProcessErrorCode
 {

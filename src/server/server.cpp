@@ -73,6 +73,12 @@ void Server::startGame()
     // create game
     Game *game = new Game(players);
 
+    // send game packet to all sessions
+    vector<string> args;
+    args.push_back(std::to_string(game->getWidth()));
+    args.push_back(std::to_string(game->getHeight()));
+    sendPacketToAll(game_pkg, args);
+
     // start game
     game->start();
 }
@@ -102,7 +108,8 @@ unsigned int Server::getNumPlayersLoggedIn()
     return num;
 }
 
-void Server::eraseSession(Session* session){
+void Server::eraseSession(Session *session)
+{
     // find session
     for (unsigned int i = 0; i < sessions_.size(); i++)
     {

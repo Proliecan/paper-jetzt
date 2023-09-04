@@ -50,29 +50,30 @@ namespace game
     class Game
     {
     private:
-        int width;
-        int height;
+        unsigned int width;
+        unsigned int height;
         vector<Player> *players;
 
     public:
-        Game(int width, int height, vector<Player> *players)
+        Game(unsigned int width, unsigned int height, vector<Player> *players)
             : width(width),
               height(height),
               players(players){};
 
         Game(vector<Player> *players)
-            : width(10*players->size()),
-              height(10*players->size()),
+            : width(10 * players->size()),
+              height(10 * players->size()),
               players(players){};
 
-        int getWidth() { return width; };
-        int getWeight() { return height; };
+        unsigned int getWidth() { return width; };
+        unsigned int getHeight() { return height; };
         vector<Player> *getPlayers() { return players; };
 
         bool isRunning() { return true; };
 
     public:
         void start();
+        void gameLoop();
     };
 
 }
