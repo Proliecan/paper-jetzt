@@ -1,3 +1,4 @@
+#pragma once
 #include <iostream>
 
 #include <memory>
@@ -5,8 +6,6 @@
 #include <vector>
 #include <sstream>
 #include <boost/asio.hpp>
-
-#include "user.hpp"
 
 using boost::asio::ip::tcp;
 using std::cout;
@@ -18,7 +17,14 @@ using std::vector;
 // forward declarations
 class Session;
 
+#include "user.hpp"
+
 #include "game.hpp"
+namespace game
+{
+    class Player;
+    class Game;
+}
 using game::Game;
 using game::Player;
 
@@ -64,20 +70,9 @@ public:
     UserDatabase *m_user_db;
 
 public:
-    Server(boost::asio::io_context &io_context, short port, UserDatabase *user_db)
-        : acceptor_(io_context, tcp::endpoint(tcp::v4(), port)),
-          sessions_(),
-          m_user_db(user_db)
-    {
-        cout << "Server listening on port " << colorize(std::to_string(port), cyan) << endl;
+    Server(boost::asio::io_context &io_context, short port, UserDatabase *user_db);
 
-        do_accept();
-    }
-
-    ~Server()
-    {
-        cout << "Server shutting down" << endl;
-    }
+    ~Server();
 
 private:
     void do_accept();
@@ -92,12 +87,7 @@ public:
     void eraseSession(Session *session);
 
     void startGame();
-    bool isGameRunning()
-    {
-        if (m_game == nullptr)
-            return false;
-        return m_game->isRunning();
-    };
+    bool isGameRunning();
 };
 
 class Session
@@ -116,44 +106,17 @@ private:
     Player *m_player;
 
 public:
-    Session(tcp::socket socket, Server *m_server)
-        : socket_(std::move(socket)),
-          m_server(m_server),
-          m_player(nullptr)
-    {
-        cout << colorize("New session with", color::yellow) << " " << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl;
-    }
+    Session(tcp::socket socket, Server *m_server);
 
-    ~Session()
-    {
+    ~Session();
 
-        // check socket endpoint
-        try
-        {
-            socket_.remote_endpoint();
-            cout << colorize("Ending session with ", color::yellow) << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl;
-        }
-        catch (const boost::system::system_error &e)
-        {
-            cout << colorize("Ending session with ", color::yellow) << colorize("unknown", cyan) << endl;
-        }
-
-        socket_.close();
-        // remove myself from server sessions list
-        m_server->eraseSession(this);
-        delete m_player;
-    }
-
-    void start()
-    {
-        do_read();
-    }
+    void start();
 
     void sendPacket(ServerPacketType type, vector<string> args);
 
     // utility functions
     bool hasJoined();
-    Player *getPlayer() { return m_player; };
+    Player *getPlayer();
 
 private:
     void do_read();

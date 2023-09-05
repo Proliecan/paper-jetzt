@@ -5,6 +5,7 @@
 #include <iostream>
 
 #include "../helpers.hpp"
+#include "server.hpp"
 
 using std::cout;
 using std::endl;

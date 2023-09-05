@@ -1,5 +1,20 @@
 #include "server.hpp"
 
+Server::Server(boost::asio::io_context &io_context, short port, UserDatabase *user_db)
+    : acceptor_(io_context, tcp::endpoint(tcp::v4(), port)),
+      sessions_(),
+      m_user_db(user_db)
+{
+    cout << "Server listening on port " << colorize(std::to_string(port), cyan) << endl;
+
+    do_accept();
+}
+
+Server::~Server()
+{
+    cout << "Server shutting down" << endl;
+}
+
 void Server::do_accept()
 {
     acceptor_.async_accept(
@@ -94,6 +109,13 @@ void Server::startGame()
     // start game
     game->start();
 }
+
+bool Server::isGameRunning()
+{
+    if (m_game == nullptr)
+        return false;
+    return m_game->isRunning();
+};
 
 bool Server::isPlayerLoggedIn(string username)
 {
@@ -206,6 +228,45 @@ void Session::do_write(string data)
                                      }
                                  }
                              });
+}
+
+Session::Session(tcp::socket socket, Server *m_server)
+    : socket_(std::move(socket)),
+      m_server(m_server),
+      m_player(nullptr)
+{
+    cout << colorize("New session with", color::yellow) << " " << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl;
+}
+
+Session::
+    ~Session()
+{
+
+    // check socket endpoint
+    try
+    {
+        socket_.remote_endpoint();
+        cout << colorize("Ending session with ", color::yellow) << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl;
+    }
+    catch (const boost::system::system_error &e)
+    {
+        cout << colorize("Ending session with ", color::yellow) << colorize("unknown", cyan) << endl;
+    }
+
+    socket_.close();
+    // remove myself from server sessions list
+    m_server->eraseSession(this);
+    delete m_player;
+}
+
+void Session::start()
+{
+    do_read();
+}
+
+Player *Session::getPlayer()
+{
+    return m_player;
 }
 
 ProcessErrorCode Session::process(string data)
