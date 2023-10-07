@@ -1,0 +1,224 @@
+@startuml overview
+
+<Style>
+document{
+	backgroundcolor #010409
+}
+
+arrow{
+	LineColor #ffffff
+}
+
+class{
+	BackgroundColor #222222
+	LineColor White
+	FontColor White
+}
+
+</Style>
+
+
+
+/' Objects '/
+
+class Server {
+	+Server(boost::asio::io_context& io_context, short port, UserDatabase* user_db)
+	+~Server()
+	-m_game : Game*
+	+m_user_db : UserDatabase*
+	+isGameRunning() : bool
+	+isPlayerLoggedIn(string username) : bool
+	+{static} to_string(ServerPacketType type) : string
+	-acceptor_ : tcp::acceptor
+	+getNumPlayersLoggedIn() : unsigned int
+	-sessions_ : vector<Session*>
+	-do_accept() : void
+	+eraseSession(Session* session) : void
+	+sendPacketToAll(ServerPacketType type, vector<string> args) : void
+	+sendPacketToAllPlayers(ServerPacketType type, vector<string> args) : void
+	+startGame() : void
+}
+
+
+class Session {
+	+Session(tcp::socket socket, Server* m_server)
+	+~Session()
+	+getPlayer() : Player*
+	-m_player : Player*
+	-m_server : Server*
+	+hasJoined() : bool
+	-checkCredentials(string username, string password) : int
+	-process(string data) : int
+	-processChat(Player* player, string message) : int
+	-processJoin(string username, string password) : int
+	-processMove(string direction) : int
+	-socket_ : tcp::socket
+	-do_read() : void
+	-do_write(string data) : void
+	+sendPacket(ServerPacketType type, vector<string> args) : void
+	+start() : void
+}
+
+
+class User {
+	-password_ : string
+	-username_ : string
+}
+
+
+class UserDatabase {
+	+UserDatabase(string filepath)
+	+~UserDatabase()
+	+checkPassword(string username, string password) : bool
+	+userExists(string username) : bool
+	-users_ : std::map<string, string>*
+	-filepath_ : string
+	+hashPassword(string password) : string
+	+addUser(string username, string password) : void
+	+loadFromFile(string filepath) : void
+}
+
+
+enum ProcessErrorCode {
+	ERROR
+	OK
+}
+
+
+enum ServerPacketType {
+	die
+	error
+	game_pkg
+	lose
+	message
+	motd
+	player
+	pos
+	tick
+	win
+}
+
+
+enum Session::empty {
+	max_length
+}
+
+
+namespace helpers {
+	enum color {
+		black
+		black_bg
+		blue
+		blue_bg
+		bold
+		cyan
+		cyan_bg
+		green
+		green_bg
+		magenta
+		magenta_bg
+		red
+		red_bg
+		reset
+		white
+		white_bg
+		yellow
+		yellow_bg
+	}
+}
+
+
+namespace game {
+	class Game {
+		+Game(unsigned int width, unsigned int height, vector<Player>* players)
+		+Game(vector<Player>* players)
+		+isRunning() : bool
+		+getHeight() : unsigned int
+		+getWidth() : unsigned int
+		-height : unsigned int
+		-width : unsigned int
+		+getPlayers() : vector<Player>*
+		-players : vector<Player>*
+		+gameLoop() : void
+		+start() : void
+	}
+
+	class Player {
+		+Player(string i_name, string i_color)
+		+getPos() : position
+		-pos : position
+		+getColor() : string
+		+getName() : string
+		-m_color : string
+		-m_name : string
+		+getTrace() : vector<position>*
+		-trace : vector<position>*
+	}
+
+	class Player::position {
+		+x : int
+		+y : int
+	}
+}
+
+
+namespace bot {
+	class Bot {
+		+Bot(boost::asio::io_context& io_context, short port, string username, string password)
+		+port : short
+		+password : string
+		-read_buffer : string
+		+username : string
+		-write_buffer : string
+		+sock : tcp::socket
+		+connect() : void
+		+do_read() : void
+		+do_write(string msg) : void
+		+join() : void
+	}
+}
+
+
+
+
+
+/' Inheritance relationships '/
+
+
+
+
+/' Aggregation relationships '/
+
+game.Game *-- game.Player
+
+
+.Server o-- game.Game
+
+
+.Server o-- .Session
+
+
+.Server o-- .UserDatabase
+
+
+.Session o-- game.Player
+
+
+.Session o-- .Server
+
+
+
+
+
+
+/' Nested objects '/
+
+game.Player +-- game.Player::position
+
+
+.Session +-- .Session::empty
+
+
+
+
+@enduml
