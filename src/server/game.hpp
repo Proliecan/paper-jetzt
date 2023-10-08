@@ -18,6 +18,15 @@ class Server;
 
 namespace game
 {
+
+    enum move
+    {
+        UP,
+        DOWN,
+        LEFT,
+        RIGHT
+    };
+
     class Player
     {
     public:
@@ -33,6 +42,7 @@ namespace game
 
         position pos;
         vector<position> *trace;
+        move nextMove;
 
     public:
         Player(string i_name, string i_color)
@@ -45,6 +55,8 @@ namespace game
         position getPos() { return pos; };
         vector<position> *getTrace() { return trace; };
         void setPos(position i_pos) { pos = i_pos; };
+        void setNextMove(move i_move) { nextMove = i_move; };
+        move getNextMove() { return nextMove; };
     };
 
     class Game
@@ -54,6 +66,7 @@ namespace game
         unsigned int height;
         vector<Player> *players;
         Server *m_server;
+        unsigned int sleepTime = 1;
 
     public:
         Game(unsigned int width, unsigned int height, vector<Player> *players, Server *m_server)

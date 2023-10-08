@@ -20,13 +20,47 @@ void Game::start()
 
 void Game::gameLoop()
 {
-    // send game state to clients
-    // send all players the position of all players
-    for (Player &player : *players)
+    while (true)
     {
-        m_server->sendPacketToAllPlayers(ServerPacketType::pos, {player.getName(), std::to_string(player.getPos().x), std::to_string(player.getPos().y)});
-    }
+        // send game state to clients
+        // send all players the position of all players
+        for (Player &player : *players)
+        {
+            m_server->sendPacketToAllPlayers(ServerPacketType::pos, {player.getName(), std::to_string(player.getPos().x), std::to_string(player.getPos().y)});
+        }
 
-    // send game tick
-    m_server->sendPacketToAllPlayers(ServerPacketType::tick, {});
+        // sleep for 1 second
+        sleep(sleepTime);
+
+        // make moves
+        for (Player &player : *players)
+        {
+            // move player
+            Player::position newPos = player.getPos();
+            switch (player.getNextMove())
+            {
+            case move::UP:
+                newPos.y--;
+                break;
+            case move::DOWN:
+                newPos.y++;
+                break;
+            case move::LEFT:
+                newPos.x--;
+                break;
+            case move::RIGHT:
+                newPos.x++;
+                break;
+            default:
+                break;
+            }
+            // check for collision
+            // if collision, remove player
+            // else, update player position
+            player.setPos(newPos);
+        }
+
+        // send game tick
+        m_server->sendPacketToAllPlayers(ServerPacketType::tick, {});
+    }
 }
