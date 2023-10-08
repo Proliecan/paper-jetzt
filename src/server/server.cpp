@@ -76,9 +76,12 @@ void Server::sendPacketToAllPlayers(ServerPacketType type, vector<string> args)
     // send packet to all players
     for (Session *session : sessions_)
     {
-        if (session->hasJoined())
+        for(unsigned int i = 0; i < m_game->getPlayers()->size(); i++)
         {
-            session->sendPacket(type, args);
+            if (session->hasJoined() && session->getPlayer()->getName() == (m_game->getPlayers()->at(i).getName()))
+            {   
+                session->sendPacket(type, args);
+            }
         }
     }
 }
