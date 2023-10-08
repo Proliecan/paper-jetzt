@@ -44,6 +44,8 @@ namespace game
         vector<position> *trace;
         move nextMove;
 
+        bool isAlive = true;
+
     public:
         Player(string i_name, string i_color)
             : m_name(i_name),
@@ -57,13 +59,15 @@ namespace game
         void setPos(position i_pos) { pos = i_pos; };
         void setNextMove(move i_move) { nextMove = i_move; };
         move getNextMove() { return nextMove; };
+        bool getIsAlive() { return isAlive; };
+        void setIsAlive(bool i_isAlive) { isAlive = i_isAlive; };
     };
 
     class Game
     {
     private:
-        unsigned int width;
-        unsigned int height;
+        int width;
+        int height;
         vector<Player> *players;
         Server *m_server;
         unsigned int sleepTime = 1;
