@@ -98,6 +98,9 @@ void Server::startGame()
     // create game
     Game *game = new Game(players, this);
 
+    // set game
+    m_game = game;
+
     // send game packet to all sessions
     vector<string> args;
     args.push_back(std::to_string(game->getWidth()));
