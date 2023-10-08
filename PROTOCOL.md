@@ -34,7 +34,7 @@
 
 The protocol is string based.  
 Every packet must and will end with a newline (\n).  
-E.g: `pos|10|50|5\n`  
+E.g: `pos|ranbot|50|5\n`  
 **Note:** _All next examples in this documentation are given without \n. But dont forget it in your parsing!_
 
 ## Packet structure
@@ -140,7 +140,7 @@ The die packet is sent by the server to inform the client about a players who di
 | 1... |  string | The player name |
 
 **Example (1 dead player):** `die|testBot`  
-**Example (4 dead player):** `die|ranbot|testBot|proliecan`
+**Example (3 dead player):** `die|ranbot|testBot|proliecan`
 
 ### move
 
