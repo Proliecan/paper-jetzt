@@ -1,5 +1,7 @@
 @startuml overview
 
+skinparam DefaultFontColor White
+
 <Style>
 document{
 	backgroundcolor #010409
@@ -11,6 +13,11 @@ arrow{
 
 class{
 	BackgroundColor #222222
+	LineColor White
+	FontColor White
+}
+
+package{
 	LineColor White
 	FontColor White
 }
