@@ -47,8 +47,6 @@ string Server::to_string(ServerPacketType type)
         return "game";
     case pos:
         return "pos";
-    case player:
-        return "player";
     case tick:
         return "tick";
     case die:
@@ -98,7 +96,7 @@ void Server::startGame()
     }
 
     // create game
-    Game *game = new Game(players);
+    Game *game = new Game(players, this);
 
     // send game packet to all sessions
     vector<string> args;

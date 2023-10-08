@@ -43,7 +43,6 @@ enum ServerPacketType
     error,
     game_pkg,
     pos,
-    player,
     tick,
     die,
     message,
