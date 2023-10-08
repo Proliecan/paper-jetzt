@@ -17,15 +17,15 @@ namespace game
 {
     class Player
     {
-    private:
-        string m_name;
-        string m_color;
-
+    public:
         struct position
         {
             int x;
             int y;
         };
+    private:
+        string m_name;
+        string m_color;
 
         position pos;
         vector<position> *trace;
@@ -40,6 +40,7 @@ namespace game
         string getColor() { return m_color; };
         position getPos() { return pos; };
         vector<position> *getTrace() { return trace; };
+        void setPos(position i_pos) { pos = i_pos; };
     };
 
     class Game
