@@ -21,5 +21,12 @@ void Game::start()
 void Game::gameLoop()
 {
     // send game state to clients
-    server::sendGameState(players);
+    // send all players the position of all players
+    for (Player &player : *players)
+    {
+        m_server->sendPacketToAllPlayers(ServerPacketType::pos, {player.getName(), std::to_string(player.getPos().x), std::to_string(player.getPos().y)});
+    }
+
+    // send game tick
+    m_server->sendPacketToAllPlayers(ServerPacketType::tick, {});
 }
