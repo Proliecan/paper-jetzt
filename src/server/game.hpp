@@ -59,15 +59,30 @@ namespace game
         Server *m_server;
         unsigned int sleepTime = 1;
 
-        // bit layout of value:
-        // bits 0-7: player id      // max players: 255
-        // bit 8: is head
-        // bit 9: is territory
-        // bit 10: is wall          // unused
-        // bit 11: is food          // unused
-        // bit 12-15: not used      // unused
-        vector<vector<short int>> *map;
+        struct position
+        {
+            int x;
+            int y;
+        };
+        struct fieldState
+        {
+            bool isTerritory = false;
+            bool isHead = false;
+            Player *player = nullptr;
 
+            // constructor
+            fieldState(bool i_isTerritory, bool i_isHead, Player *i_player)
+                : isTerritory(i_isTerritory),
+                  isHead(i_isHead),
+                  player(i_player){};
+        };
+        struct field
+        {
+            position pos;
+            fieldState state;
+        };
+
+        vector<vector<fieldState>> *map;
 
         /// @brief vector of players that died in the last round
         vector<Player *> diedPlayers;
@@ -78,43 +93,33 @@ namespace game
               height(height),
               players(players),
               m_server(m_server),
-              map(new vector<vector<short int>>(width, vector<short int>(height, 0))){};
+              map(new vector<vector<fieldState>>(width, vector<fieldState>(height, fieldState(false, false, nullptr)))){};
 
         Game(vector<Player> *players, Server *m_server)
             : width(10 * players->size()),
               height(10 * players->size()),
               players(players),
               m_server(m_server),
-              map(new vector<vector<short int>>(width, vector<short int>(height, 0))){};
+              map(new vector<vector<fieldState>>(width, vector<fieldState>(height, fieldState(false, false, nullptr)))){};
 
         unsigned int getWidth() { return width; };
         unsigned int getHeight() { return height; };
         bool isRunning() { return true; };
         vector<Player> *getPlayers() { return players; };
 
-        vector<vector<short int>> *getMap() { return map; };
+        vector<vector<fieldState>> *getMap() { return map; };
 
     public:
         void start();
         void gameLoop();
 
     private:
-        Player *getPlayerAtPosition(int x, int y);
-        bool isPositionFree(int x, int y);
-        bool isPositionTerritory(int x, int y);
-        bool isPositionHead(int x, int y);
+        fieldState *getFieldState(int x, int y);
 
-        void setPositionPlayer(int x, int y, Player *player);
-        void setPositionIsHead(int x, int y, bool isHead);
-        void setPositionIsTerritory(int x, int y, bool isTerritory);
+        void setFieldState(int x, int y, fieldState state);
 
         void movePlayer(Player *player);
-        struct position
-        {
-            int x;
-            int y;
-        };
-        position* getPlayerPosition(Player *player);
+        position *getPlayerPosition(Player *player);
     };
 
 }
