@@ -3,81 +3,14 @@ using namespace game;
 
 #pragma region Map-bitmasking
 
-Player *Game::getPlayerAtPosition(int x, int y)
+Game::fieldState *Game::getFieldState(int x, int y)
 {
-    short unsigned int value = (*map)[y][x];
-
-    short unsigned int playerVal = (value & 0b0000000011111111); // -1 because 0 is empty
-
-    // check if playerVal is 0
-    if (playerVal == 0)
-    {
-        return nullptr;
-    }
-
-    return &(*players)[playerVal - 1];
+    return &(*map)[y][x];
 }
 
-bool Game::isPositionFree(int x, int y)
+void Game::setFieldState(int x, int y, fieldState state)
 {
-    short unsigned int value = (*map)[y][x];
-    return (value & 0b0000000011111111) == 0;
-}
-
-bool Game::isPositionTerritory(int x, int y)
-{
-    short unsigned int value = (*map)[y][x];
-    return (value & 0b0000001000000000) > 0;
-}
-
-bool Game::isPositionHead(int x, int y)
-{
-    short unsigned int value = (*map)[y][x];
-    return (value & 0b0000000100000000) > 0;
-}
-
-void Game::setPositionPlayer(int x, int y, Player *player)
-{
-    // determine player id
-    short unsigned int playerId = 0;
-    for (unsigned int i = 0; i < players->size(); i++)
-    {
-        if (&(*players)[i] == player)
-        {
-            playerId = i + 1; // +1 because 0 is empty
-            break;
-        }
-    }
-
-    // get value from map
-    short unsigned int value = (*map)[y][x];
-    // combine player id with value
-    value = (value & 0b1111111100000000) | playerId;
-
-    // set value in map
-    (*map)[y][x] = value;
-}
-
-void Game::setPositionIsHead(int x, int y, bool isHead)
-{
-    // get value from map
-    short unsigned int value = (*map)[y][x];
-    // set bit 8 to isHead
-    value = (value & 0b1111111011111111) | (isHead << 8);
-
-    // set value in map
-    (*map)[y][x] = value;
-}
-
-void Game::setPositionIsTerritory(int x, int y, bool isTerritory)
-{
-    // get value from map
-    short unsigned int value = (*map)[y][x];
-    // set bit 9 to isTerritory
-    value = (value & 0b1111110111111111) | (isTerritory << 9);
-
-    // set value in map
-    (*map)[y][x] = value;
+    (*map)[y][x] = state;
 }
 
 #pragma endregion
@@ -92,13 +25,12 @@ void Game::start()
         // set player position
         int x = rand() % width;
         int y = rand() % height;
-        while (!isPositionFree(x, y))
+        while (!(getFieldState(x, y)->player == nullptr))
         {
             x = rand() % width;
             y = rand() % height;
         }
-        setPositionPlayer(x, y, &player);
-        setPositionIsHead(x, y, true);
+        setFieldState(x, y, {false, true, &player});
         player.setIsAlive(true);
     }
 
@@ -115,9 +47,9 @@ void Game::gameLoop()
         {
             for (int x = 0; x < width; x++)
             {
-                if (isPositionHead(x, y))
+                if (getFieldState(x, y)->isHead)
                 {
-                    Player *player = getPlayerAtPosition(x, y);
+                    Player *player = getFieldState(x, y)->player;
 
                     if (player != nullptr)
                     {
@@ -174,11 +106,11 @@ void Game::movePlayer(Player *player)
         return;
     }
 
+    // previous field is now tail
+    setFieldState(pos->x, pos->y, {false, false, player});
+
     // get next move
     move nextMove = player->getNextMove();
-
-    // set current position to tail
-    setPositionIsHead(pos->x, pos->y, false);
 
     // move player
     switch (nextMove)
@@ -210,9 +142,7 @@ void Game::movePlayer(Player *player)
     }
 
     // set new head position
-    setPositionPlayer(pos->x, pos->y, player);
-    setPositionIsHead(pos->x, pos->y, true);
-    setPositionIsTerritory(pos->x, pos->y, false);
+    setFieldState(pos->x, pos->y, {false, true, player});
 }
 
 Game::position *Game::getPlayerPosition(Player *player)
@@ -222,8 +152,7 @@ Game::position *Game::getPlayerPosition(Player *player)
     {
         for (int x = 0; x < width; x++)
         {
-
-            if (getPlayerAtPosition(x, y) == player)
+            if (getFieldState(x, y)->player == player)
             {
                 return new position{x, y};
             }
