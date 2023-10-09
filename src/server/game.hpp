@@ -40,7 +40,7 @@ namespace game
     public:
         Player(string i_name, string i_color)
             : m_name(i_name),
-              m_color(i_color) {};
+              m_color(i_color){};
 
         string getName() { return m_name; };
         string getColor() { return m_color; };
@@ -59,6 +59,13 @@ namespace game
         Server *m_server;
         unsigned int sleepTime = 1;
 
+        // bit layout of value:
+        // bits 0-7: player id      // max players: 255
+        // bit 8: is head
+        // bit 9: is territory
+        // bit 10: is wall          // unused
+        // bit 11: is food          // unused
+        // bit 12-15: not used      // unused
         vector<vector<short int>> *map;
 
     public:
@@ -83,10 +90,19 @@ namespace game
 
         vector<vector<short int>> *getMap() { return map; };
 
-
     public:
         void start();
         void gameLoop();
+
+    private:
+        Player *getPlayerAtPosition(int x, int y);
+        bool isPositionFree(int x, int y);
+        bool isPositionTerritory(int x, int y);
+        bool isPositionHead(int x, int y);
+
+        void setPositionPlayer(int x, int y, Player *player);
+        void setPositionIsHead(int x, int y, bool isHead);
+        void setPositionIsTerritory(int x, int y, bool isTerritory);
     };
 
 }

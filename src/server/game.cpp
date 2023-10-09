@@ -1,6 +1,80 @@
 #include "game.hpp"
 using namespace game;
 
+#pragma region Map-bitmasking
+
+Player *Game::getPlayerAtPosition(int x, int y)
+{
+    short unsigned int value = (*map)[y][x];
+
+    short unsigned int playerId = (value & 0b0000000011111111) - 1; // -1 because 0 is empty
+    return &(*players)[playerId];
+}
+
+bool Game::isPositionFree(int x, int y)
+{
+    short unsigned int value = (*map)[y][x];
+    return (value & 0b0000000011111111) == 0;
+}
+
+bool Game::isPositionTerritory(int x, int y)
+{
+    short unsigned int value = (*map)[y][x];
+    return (value & 0b0000001000000000) > 0;
+}
+
+bool Game::isPositionHead(int x, int y)
+{
+    short unsigned int value = (*map)[y][x];
+    return (value & 0b0000000100000000) > 0;
+}
+
+void Game::setPositionPlayer(int x, int y, Player *player)
+{
+    // determine player id
+    short unsigned int playerId = 0;
+    for (unsigned int i = 0; i < players->size(); i++)
+    {
+        if (&(*players)[i] == player)
+        {
+            playerId = i + 1; // +1 because 0 is empty
+            break;
+        }
+    }
+
+    // get value from map
+    short unsigned int value = (*map)[y][x];
+    //combine player id with value
+    value = (value & 0b1111111100000000) | playerId;
+
+    // set value in map
+    (*map)[y][x] = value;
+}
+
+void Game::setPositionIsHead(int x, int y, bool isHead)
+{
+    // get value from map
+    short unsigned int value = (*map)[y][x];
+    // set bit 8 to isHead
+    value = (value & 0b1111111011111111) | (isHead << 8);
+
+    // set value in map
+    (*map)[y][x] = value;
+}
+
+void Game::setPositionIsTerritory(int x, int y, bool isTerritory)
+{
+    // get value from map
+    short unsigned int value = (*map)[y][x];
+    // set bit 9 to isTerritory
+    value = (value & 0b1111110111111111) | (isTerritory << 9);
+
+    // set value in map
+    (*map)[y][x] = value;
+}
+
+#pragma endregion
+
 void Game::start()
 {
     cout << colorize("Game started", color::green) + " " + colorize("[" + std::to_string(width) + "x" + std::to_string(height) + "]", color::blue) << endl;
