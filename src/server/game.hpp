@@ -68,6 +68,10 @@ namespace game
         // bit 12-15: not used      // unused
         vector<vector<short int>> *map;
 
+
+        /// @brief vector of players that died in the last round
+        vector<Player *> diedPlayers;
+
     public:
         Game(unsigned int width, unsigned int height, vector<Player> *players, Server *m_server)
             : width(width),
@@ -103,6 +107,14 @@ namespace game
         void setPositionPlayer(int x, int y, Player *player);
         void setPositionIsHead(int x, int y, bool isHead);
         void setPositionIsTerritory(int x, int y, bool isTerritory);
+
+        void movePlayer(Player *player);
+        struct position
+        {
+            int x;
+            int y;
+        };
+        position* getPlayerPosition(Player *player);
     };
 
 }
