@@ -7,8 +7,15 @@ Player *Game::getPlayerAtPosition(int x, int y)
 {
     short unsigned int value = (*map)[y][x];
 
-    short unsigned int playerId = (value & 0b0000000011111111) - 1; // -1 because 0 is empty
-    return &(*players)[playerId];
+    short unsigned int playerVal = (value & 0b0000000011111111); // -1 because 0 is empty
+
+    // check if playerVal is 0
+    if (playerVal == 0)
+    {
+        return nullptr;
+    }
+
+    return &(*players)[playerVal - 1];
 }
 
 bool Game::isPositionFree(int x, int y)
@@ -44,7 +51,7 @@ void Game::setPositionPlayer(int x, int y, Player *player)
 
     // get value from map
     short unsigned int value = (*map)[y][x];
-    //combine player id with value
+    // combine player id with value
     value = (value & 0b1111111100000000) | playerId;
 
     // set value in map
@@ -80,10 +87,20 @@ void Game::start()
     cout << colorize("Game started", color::green) + " " + colorize("[" + std::to_string(width) + "x" + std::to_string(height) + "]", color::blue) << endl;
 
     // Initialize player positions
-    // for (Player &player : *players)
-    // {
-        cout << colorize("Player initialization not implemented", color::red) << endl;
-    // }
+    for (Player &player : *players)
+    {
+        // set player position
+        int x = rand() % width;
+        int y = rand() % height;
+        while (!isPositionFree(x, y))
+        {
+            x = rand() % width;
+            y = rand() % height;
+        }
+        setPositionPlayer(x, y, &player);
+        setPositionIsHead(x, y, true);
+        player.setIsAlive(true);
+    }
 
     // Start game loop
     gameLoop();
@@ -93,22 +110,26 @@ void Game::gameLoop()
 {
     while (true)
     {
-        // send game state to clients
-        // send all players the position of all players
-        for (Player &player : *players)
+        // iterate over map and send head positions to all players
+        for (int y = 0; y < height; y++)
         {
-            if (!player.getIsAlive())
+            for (int x = 0; x < width; x++)
             {
-                continue;
+                if (isPositionHead(x, y))
+                {
+                    Player *player = getPlayerAtPosition(x, y);
+
+                    if (player != nullptr)
+                    {
+                        // send head position to player
+                        m_server->sendPacketToAllPlayers(ServerPacketType::pos, {player->getName(), std::to_string(x), std::to_string(y)});
+                    }
+                }
             }
-            cout << colorize("Pos packet not implemented", color::red) << endl;
         }
 
         // sleep for 1 second
         sleep(sleepTime);
-
-        // vector for died players
-        vector<Player *> diedPlayers;
 
         // make moves
         for (Player &player : *players)
@@ -117,13 +138,9 @@ void Game::gameLoop()
             {
                 continue;
             }
+
             // move player
-            cout << colorize("player movement not implemented", color::red) << endl;
-
-            // check for collision
-            
-
-            // update player position
+            movePlayer(&player);
         }
 
         // send game tick
@@ -139,6 +156,79 @@ void Game::gameLoop()
                 diedPlayerNames.push_back(player->getName());
             }
             m_server->sendPacketToAllPlayers(ServerPacketType::die, diedPlayerNames);
+
+            // remove died players from map
+
+            // empty diedPlayers vector
+            diedPlayers.clear();
         }
     }
+}
+
+void Game::movePlayer(Player *player)
+{
+    position *pos = getPlayerPosition(player);
+
+    if (pos == nullptr)
+    {
+        return;
+    }
+
+    // get next move
+    move nextMove = player->getNextMove();
+
+    // set current position to tail
+    setPositionIsHead(pos->x, pos->y, false);
+
+    // move player
+    switch (nextMove)
+    {
+    case UP:
+        pos->y--;
+        break;
+    case DOWN:
+        pos->y++;
+        break;
+    case LEFT:
+        pos->x--;
+        break;
+    case RIGHT:
+        pos->x++;
+        break;
+
+    default:
+        break;
+    }
+
+    // collision tests
+    // Out of bounds
+    if (pos->x < 0 || pos->x >= width || pos->y < 0 || pos->y >= height)
+    {
+        player->setIsAlive(false);
+        diedPlayers.push_back(player);
+        return;
+    }
+
+    // set new head position
+    setPositionPlayer(pos->x, pos->y, player);
+    setPositionIsHead(pos->x, pos->y, true);
+    setPositionIsTerritory(pos->x, pos->y, false);
+}
+
+Game::position *Game::getPlayerPosition(Player *player)
+{
+    // iterate over map and find player
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+
+            if (getPlayerAtPosition(x, y) == player)
+            {
+                return new position{x, y};
+            }
+        }
+    }
+
+    return nullptr;
 }
