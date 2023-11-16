@@ -5,14 +5,14 @@ Server::Server(boost::asio::io_context &io_context, short port, UserDatabase *us
       sessions_(),
       m_user_db(user_db)
 {
-    Logger::ln("Server listening on port " + colorize(std::to_string(port), cyan));
+    Logger::ln("Server listening on port " + colorize(std::to_string(port), cyan), Logger::normal);
 
     do_accept();
 }
 
 Server::~Server()
 {
-    Logger::ln("Server shutting down");
+    Logger::ln("Server shutting down", Logger::normal);
 }
 
 void Server::do_accept()
@@ -178,7 +178,7 @@ void Session::do_read()
 
                                     delete[] data_;
 
-                                    Logger::ln("> " + colorize(socket_.remote_endpoint().address().to_string(), cyan) + ": " + data_str, red);
+                                    Logger::ln("> " + colorize(socket_.remote_endpoint().address().to_string(), cyan) + ": " + data_str, Logger::verbose, red);
 
                                     // process packet
                                     process(data_str);
@@ -195,7 +195,7 @@ void Session::do_read()
                                         return;
                                     }
                                     // log the error information
-                                    Logger::ln("Error on session with " + colorize(socket_.remote_endpoint().address().to_string(), cyan) + ": " + ec.message(), red);
+                                    Logger::ln("Error on session with " + colorize(socket_.remote_endpoint().address().to_string(), cyan) + ": " + ec.message(), Logger::verbose, red);
                                 }
                             });
 }
@@ -216,12 +216,12 @@ void Session::do_write(string data)
                                      try
                                      {
                                          socket_.remote_endpoint();
-                                         Logger::ln("< " + colorize(socket_.remote_endpoint().address().to_string(), cyan) + ": " + data_str, green);
+                                         Logger::ln("< " + colorize(socket_.remote_endpoint().address().to_string(), cyan) + ": " + data_str, Logger::verbose, green);
                                      }
                                      catch (boost::system::system_error &e)
                                      {
                                          // delete session
-                                         Logger::ln("Sending data failed: " + colorize(e.what(), red));
+                                         Logger::ln("Sending data failed: " + colorize(e.what(), red), Logger::verbose);
                                          return;
                                      }
                                  }
@@ -233,7 +233,7 @@ Session::Session(tcp::socket socket, Server *m_server)
       m_server(m_server),
       m_player(nullptr)
 {
-    Logger::ln("New session with " + colorize(socket_.remote_endpoint().address().to_string(), cyan), yellow);
+    Logger::ln("New session with " + colorize(socket_.remote_endpoint().address().to_string(), cyan), Logger::verbose, yellow);
 }
 
 Session::
@@ -244,11 +244,11 @@ Session::
     try
     {
         socket_.remote_endpoint();
-        Logger::ln("Ending session with " + colorize(socket_.remote_endpoint().address().to_string(), cyan), yellow);
+        Logger::ln("Ending session with " + colorize(socket_.remote_endpoint().address().to_string(), cyan), Logger::verbose, yellow);
     }
     catch (const boost::system::system_error &e)
     {
-        Logger::ln("Ending session with " + colorize("unknown", cyan), yellow);
+        Logger::ln("Ending session with " + colorize("unknown", cyan), Logger::verbose, yellow);
     }
 
     socket_.close();
@@ -368,7 +368,7 @@ ProcessErrorCode Session::checkCredentials(string username, string password)
         if (m_server->m_user_db->checkPassword(username, password))
         {
             // print debug message
-            Logger::ln("Existing user " + colorize(username, cyan));
+            Logger::ln("Existing user " + colorize(username, cyan), Logger::verbose);
             return OK;
         }
         else
@@ -381,7 +381,7 @@ ProcessErrorCode Session::checkCredentials(string username, string password)
     m_server->m_user_db->addUser(username, password);
 
     // print debug message
-    Logger::ln("New user " + colorize(username, cyan));
+    Logger::ln("New user " + colorize(username, cyan), Logger::verbose);
 
     return OK;
 }
