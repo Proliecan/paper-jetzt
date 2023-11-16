@@ -2,13 +2,10 @@
 
 #include <string>
 #include <vector>
-#include <iostream>
 
 #include "../helpers.hpp"
 #include "server.hpp"
 
-using std::cout;
-using std::endl;
 using std::string;
 using std::vector;
 using namespace helpers;

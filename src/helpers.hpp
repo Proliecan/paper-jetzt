@@ -36,4 +36,11 @@ namespace helpers
     color nearestColorFromHexCode(string hexcode);
     string strip(string text);
     string randomHexColor();
+
+    class Logger {
+        public:
+            static void ln(string text, color c = reset, color bg = reset, bool bold = false);
+            static void log(string text, color c = reset, color bg = reset, bool bold = false);
+    };
+    
 }

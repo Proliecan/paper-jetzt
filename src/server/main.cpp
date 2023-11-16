@@ -24,7 +24,7 @@ int main(int argc, char *argv[])
 
         UserDatabase *user_db = init_user_db(argv);
 
-        cout << "Starting server..." << endl;
+        Logger::ln("Starting server...");
         boost::asio::io_context io_context;
         // server has to live on the heap to not cause segfauls daah
         new Server(io_context, std::atoi(argv[1]), user_db);
@@ -33,7 +33,8 @@ int main(int argc, char *argv[])
     }
     catch (std::exception &e)
     {
-        std::cerr << "Exception: " << e.what() << "\n";
+        // TODO: log exception
+        Logger::ln("Exception: " + string(e.what()), red);
     }
 
     return 0;
@@ -41,10 +42,8 @@ int main(int argc, char *argv[])
 
 void print_usage(char *argv[])
 {
-    std::cerr << "Usage: " << argv[0]
-              << colorize(" <port>", color::red)
-              << colorize(" <path_to_user_file>", color::cyan)
-              << std::endl;
+    // TODO: use cerr
+    Logger::ln("Usage: " + string(argv[0]) + colorize(" <port>", color::red) + colorize(" <path_to_user_file>", color::cyan));
 }
 
 UserDatabase *init_user_db(char *argv[])
@@ -54,7 +53,8 @@ UserDatabase *init_user_db(char *argv[])
     if (!user_file.is_open())
     {
         // print info message and create user file
-        std::cout << "User file " << colorize(argv[2], color::cyan) << " does not exist. Creating it..." << std::endl;
+        Logger::ln("User file " + colorize(argv[2], color::cyan) + " does not exist. Creating it...");
+
         std::ofstream user_file(argv[2]);
     }
     // init user database on the heap

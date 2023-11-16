@@ -1,18 +1,16 @@
 #include "bot.hpp"
-
-#include <iostream>
-
-using std::cout;
-using std::endl;
+#include "../helpers.hpp"
 
 using namespace bot;
+using namespace helpers;
 
 // main function
 int main(int argc, char *argv[])
 {
     if (argc != 4)
     {
-        std::cerr << "Usage: bot <port> <username> <password>\n";
+        // log (this should be in stderr TODO)
+        Logger::ln("Usage: bot <port> <username> <password>\n", red);
         return 1;
     }
 
