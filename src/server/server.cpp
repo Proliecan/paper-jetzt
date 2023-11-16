@@ -178,7 +178,7 @@ void Session::do_read()
 
                                     delete[] data_;
 
-                                    Logger::ln("Received packet from " + colorize(socket_.remote_endpoint().address().to_string(), cyan) + ": " + data_str);
+                                    Logger::ln("> " + colorize(socket_.remote_endpoint().address().to_string(), cyan) + ": " + data_str, red);
 
                                     // process packet
                                     process(data_str);
@@ -216,7 +216,7 @@ void Session::do_write(string data)
                                      try
                                      {
                                          socket_.remote_endpoint();
-                                         Logger::ln("Sent packet to " + colorize(socket_.remote_endpoint().address().to_string(), cyan) + ": " + data_str);
+                                         Logger::ln("< " + colorize(socket_.remote_endpoint().address().to_string(), cyan) + ": " + data_str, green);
                                      }
                                      catch (boost::system::system_error &e)
                                      {
