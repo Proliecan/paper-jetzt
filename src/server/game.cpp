@@ -3,8 +3,8 @@ using namespace game;
 
 void Game::start()
 {
-    Logger::ln("Game started", green);
-    Logger::ln("[" + std::to_string(width) + "x" + std::to_string(height) + "]", blue);
+    Logger::ln("Game started", Logger::normal, green);
+    Logger::ln("[" + std::to_string(width) + "x" + std::to_string(height) + "]", Logger::normal, blue);
 
     // Initialize player positions
     for (Player &player : *players)

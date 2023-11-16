@@ -41,7 +41,7 @@ namespace bot
                                 }
 
                                 // log
-                                Logger::ln(data, red);
+                                Logger::ln(colorize("> ", red) + data);
                                 }
                                 do_read();
                              });
@@ -61,7 +61,7 @@ namespace bot
                                     if (!ec)
                                     {
                                         // log
-                                        Logger::ln("< " + msg, green);
+                                        Logger::ln(colorize("< ", green) + msg);
                                     }
                                  });
     }

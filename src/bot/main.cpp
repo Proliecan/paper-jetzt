@@ -10,7 +10,7 @@ int main(int argc, char *argv[])
     if (argc != 4)
     {
         // log (this should be in stderr TODO)
-        Logger::ln("Usage: bot <port> <username> <password>\n", red);
+        Logger::ln("Usage: bot <port> <username> <password>\n", Logger::normal, red);
         return 1;
     }
 

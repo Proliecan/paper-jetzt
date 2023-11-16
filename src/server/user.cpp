@@ -8,7 +8,7 @@ using namespace helpers;
 
 void UserDatabase::loadFromFile(string filepath)
 {
-    Logger::ln("Loading users from " + colorize(filepath, color::cyan));
+    Logger::ln("Loading users from " + colorize(filepath, color::cyan), Logger::normal);
     std::ifstream user_file(filepath);
     // assert file is open
     if (!user_file.is_open())
@@ -44,7 +44,7 @@ void UserDatabase::loadFromFile(string filepath)
     }
 
     // log number of users loaded
-    Logger::ln("Loaded " + std::to_string(users_->size()) + " users");
+    Logger::ln("Loaded " + std::to_string(users_->size()) + " users", Logger::normal);
 }
 
 void UserDatabase::addUser(string username, string password)
