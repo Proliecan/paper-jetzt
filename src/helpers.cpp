@@ -138,19 +138,23 @@ namespace helpers
 
     void Logger::log(string text, color c, color bg, bool bold)
     {
+        // using colorize function
         if (bold)
         {
-            std::cout << "\033[1m";
+            text = colorize(text, helpers::bold);
         }
         if (c != reset)
         {
-            std::cout << "\033[" << c << "m";
+            text = colorize(text, c);
         }
         if (bg != reset)
         {
-            std::cout << "\033[" << bg << "m";
+            text = colorize(text, bg);
         }
-        std::cout << text << "\033[0m";
+
+        std::cout << text;
+
+        std::cout.flush();
     }
     void Logger::ln(string text, color c, color bg, bool bold)
     {
