@@ -1,13 +1,14 @@
 #include "user.hpp"
+#include "../helpers.hpp"
 
 #include <fstream>
-#include <iostream>
 
 using string = std::string;
+using namespace helpers;
 
 void UserDatabase::loadFromFile(string filepath)
 {
-    std::cout << "Loading users from " << filepath << std::endl;
+    Logger::ln("Loading users from " + colorize(filepath, color::cyan));
     std::ifstream user_file(filepath);
     // assert file is open
     if (!user_file.is_open())
@@ -43,7 +44,7 @@ void UserDatabase::loadFromFile(string filepath)
     }
 
     // log number of users loaded
-    std::cout << "Loaded " << users_->size() << " users" << std::endl;
+    Logger::ln("Loaded " + std::to_string(users_->size()) + " users");
 }
 
 void UserDatabase::addUser(string username, string password)

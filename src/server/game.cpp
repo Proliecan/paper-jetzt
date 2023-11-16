@@ -3,7 +3,8 @@ using namespace game;
 
 void Game::start()
 {
-    cout << colorize("Game started", color::green) + " " + colorize("[" + std::to_string(width) + "x" + std::to_string(height) + "]", color::blue) << endl;
+    Logger::ln("Game started", green);
+    Logger::ln("[" + std::to_string(width) + "x" + std::to_string(height) + "]", blue);
 
     // Initialize player positions
     for (Player &player : *players)

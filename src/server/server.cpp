@@ -5,14 +5,14 @@ Server::Server(boost::asio::io_context &io_context, short port, UserDatabase *us
       sessions_(),
       m_user_db(user_db)
 {
-    cout << "Server listening on port " << colorize(std::to_string(port), cyan) << endl;
+    Logger::ln("Server listening on port " + colorize(std::to_string(port), cyan));
 
     do_accept();
 }
 
 Server::~Server()
 {
-    cout << "Server shutting down" << endl;
+    Logger::ln("Server shutting down");
 }
 
 void Server::do_accept()
@@ -76,10 +76,10 @@ void Server::sendPacketToAllPlayers(ServerPacketType type, vector<string> args)
     // send packet to all players
     for (Session *session : sessions_)
     {
-        for(unsigned int i = 0; i < m_game->getPlayers()->size(); i++)
+        for (unsigned int i = 0; i < m_game->getPlayers()->size(); i++)
         {
             if (session->hasJoined() && session->getPlayer()->getName() == (m_game->getPlayers()->at(i).getName()))
-            {   
+            {
                 session->sendPacket(type, args);
             }
         }
@@ -178,9 +178,7 @@ void Session::do_read()
 
                                     delete[] data_;
 
-                                    cout << colorize(">", color::red) << " "
-                                         << colorize(socket_.remote_endpoint().address().to_string(), cyan) << ": "
-                                         << data_str << endl;
+                                    Logger::ln("Received packet from " + colorize(socket_.remote_endpoint().address().to_string(), cyan) + ": " + data_str);
 
                                     // process packet
                                     process(data_str);
@@ -197,9 +195,7 @@ void Session::do_read()
                                         return;
                                     }
                                     // log the error information
-                                    cout << colorize("Error on session with ", color::red)
-                                         << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl
-                                         << colorize("Error: ", color::red) << ec.message() << endl;
+                                    Logger::ln("Error on session with " + colorize(socket_.remote_endpoint().address().to_string(), cyan) + ": " + ec.message(), red);
                                 }
                             });
 }
@@ -220,14 +216,12 @@ void Session::do_write(string data)
                                      try
                                      {
                                          socket_.remote_endpoint();
-                                         cout << colorize("<", color::green) << " "
-                                              << colorize(socket_.remote_endpoint().address().to_string(), cyan) << ": "
-                                              << data_str << endl;
+                                         Logger::ln("Sent packet to " + colorize(socket_.remote_endpoint().address().to_string(), cyan) + ": " + data_str);
                                      }
                                      catch (boost::system::system_error &e)
                                      {
                                          // delete session
-                                         std::cerr << colorize("Sending data failed: ", color::red) << e.what() << endl;
+                                         Logger::ln("Sending data failed: " + colorize(e.what(), red));
                                          return;
                                      }
                                  }
@@ -239,7 +233,7 @@ Session::Session(tcp::socket socket, Server *m_server)
       m_server(m_server),
       m_player(nullptr)
 {
-    cout << colorize("New session with", color::yellow) << " " << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl;
+    Logger::ln("New session with " + colorize(socket_.remote_endpoint().address().to_string(), cyan), yellow);
 }
 
 Session::
@@ -250,11 +244,11 @@ Session::
     try
     {
         socket_.remote_endpoint();
-        cout << colorize("Ending session with ", color::yellow) << colorize(socket_.remote_endpoint().address().to_string(), cyan) << endl;
+        Logger::ln("Ending session with " + colorize(socket_.remote_endpoint().address().to_string(), cyan), yellow);
     }
     catch (const boost::system::system_error &e)
     {
-        cout << colorize("Ending session with ", color::yellow) << colorize("unknown", cyan) << endl;
+        Logger::ln("Ending session with " + colorize("unknown", cyan), yellow);
     }
 
     socket_.close();
@@ -374,9 +368,7 @@ ProcessErrorCode Session::checkCredentials(string username, string password)
         if (m_server->m_user_db->checkPassword(username, password))
         {
             // print debug message
-            cout << "Existing user"
-                 << " " << colorize(username, cyan)
-                 << endl;
+            Logger::ln("Existing user " + colorize(username, cyan));
             return OK;
         }
         else
@@ -389,9 +381,7 @@ ProcessErrorCode Session::checkCredentials(string username, string password)
     m_server->m_user_db->addUser(username, password);
 
     // print debug message
-    cout << "New user"
-         << " " << colorize(username, cyan)
-         << endl;
+    Logger::ln("New user " + colorize(username, cyan));
 
     return OK;
 }

@@ -3,6 +3,8 @@
 using std::min;
 using std::string;
 
+#include <iostream>
+
 namespace helpers
 {
     string colorize(string text, color color)
@@ -132,5 +134,26 @@ namespace helpers
             }
         }
         return hexcode;
+    }
+
+    void Logger::log(string text, color c, color bg, bool bold)
+    {
+        if (bold)
+        {
+            std::cout << "\033[1m";
+        }
+        if (c != reset)
+        {
+            std::cout << "\033[" << c << "m";
+        }
+        if (bg != reset)
+        {
+            std::cout << "\033[" << bg << "m";
+        }
+        std::cout << text << "\033[0m";
+    }
+    void Logger::ln(string text, color c, color bg, bool bold)
+    {
+        log(text + "\n", c, bg, bold);
     }
 }

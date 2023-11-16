@@ -1,8 +1,6 @@
 #include "bot.hpp"
 #include "../helpers.hpp"
 
-#include <iostream>
-
 #include <string>
 #include <boost/asio.hpp>
 
@@ -29,23 +27,23 @@ namespace bot
         sock.async_read_some(boost::asio::buffer(data_, 1024),
                              [this, data_](boost::system::error_code ec, std::size_t /* length */)
                              {
-                                 if (!ec)
-                                 {
-                                     // string from data_
-                                     string data = data_;
-                                     // delete data_
-                                     delete[] data_;
+                                if (!ec)
+                                {
+                                // string from data_
+                                string data = data_;
+                                // delete data_
+                                delete[] data_;
 
-                                     // strip endline if it exists
-                                     if (data.back() == '\n')
-                                     {
-                                         data.pop_back();
-                                     }
+                                // strip endline if it exists
+                                if (data.back() == '\n')
+                                {
+                                    data.pop_back();
+                                }
 
-                                     // log
-                                     std::cout << colorize(">", red) << " " << data << std::endl;
-                                 }
-                                 do_read();
+                                // log
+                                Logger::ln(data, red);
+                                }
+                                do_read();
                              });
     }
 
@@ -60,11 +58,11 @@ namespace bot
         boost::asio::async_write(sock, boost::asio::buffer(msg),
                                  [this, msg](boost::system::error_code ec, std::size_t /* length */)
                                  {
-                                     if (!ec)
-                                     {
-                                         // log
-                                         std::cout << colorize("<", green) << " " << msg;
-                                     }
+                                    if (!ec)
+                                    {
+                                        // log
+                                        Logger::ln("< " + msg, green);
+                                    }
                                  });
     }
 }

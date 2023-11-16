@@ -1,5 +1,4 @@
 #pragma once
-#include <iostream>
 
 #include <memory>
 #include <string>
@@ -8,8 +7,6 @@
 #include <boost/asio.hpp>
 
 using boost::asio::ip::tcp;
-using std::cout;
-using std::endl;
 using std::string;
 using std::stringstream;
 using std::vector;
