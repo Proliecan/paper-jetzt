@@ -58,10 +58,10 @@ namespace helpers
         {
             verbosity_level = v;
         }
-        // static verbosity getVerbosity()
-        // {
-        //     return verbosity_level;
-        // }
+        static verbosity getVerbosity()
+        {
+            return verbosity_level;
+        }
     };
 
 }
