@@ -3,8 +3,8 @@
 #include <string>
 #include <cmath>
 
-using std::string;
 using std::min;
+using std::string;
 
 namespace helpers
 {
@@ -36,4 +36,32 @@ namespace helpers
     color nearestColorFromHexCode(string hexcode);
     string strip(string text);
     string randomHexColor();
+
+    class Logger
+    {
+    public:
+        enum verbosity
+        {
+            silent = -1,
+            normal = 0,
+            verbose = 1
+        };
+
+    private:
+        inline static verbosity verbosity_level;
+
+    public:
+        static void ln(string text, verbosity v = verbose, color c = reset, color bg = reset, bool bold = false);
+        static void log(string text, verbosity v = verbose, color c = reset, color bg = reset, bool bold = false);
+
+        static void setVerbosity(verbosity v)
+        {
+            verbosity_level = v;
+        }
+        static verbosity getVerbosity()
+        {
+            return verbosity_level;
+        }
+    };
+
 }

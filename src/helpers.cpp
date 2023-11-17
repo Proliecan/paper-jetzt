@@ -3,6 +3,9 @@
 using std::min;
 using std::string;
 
+#include <iostream>
+#include <cassert>
+
 namespace helpers
 {
     string colorize(string text, color color)
@@ -97,7 +100,8 @@ namespace helpers
         return stripped;
     }
 
-    string randomHexColor(){
+    string randomHexColor()
+    {
         string hexcode = "#";
         for (int i = 0; i < 6; i++)
         {
@@ -132,5 +136,38 @@ namespace helpers
             }
         }
         return hexcode;
+    }
+
+    void Logger::log(string text, verbosity v, color c, color bg, bool bold)
+    {
+        assert(v != silent && "Cannot log with verbosity level silent");
+
+        // if (v > Logger::getVerbosity())
+        if (v > verbosity_level)
+        {
+            return;
+        }
+
+        // using colorize function
+        if (bold)
+        {
+            text = colorize(text, helpers::bold);
+        }
+        if (c != reset)
+        {
+            text = colorize(text, c);
+        }
+        if (bg != reset)
+        {
+            text = colorize(text, bg);
+        }
+
+        std::cout << text;
+
+        std::cout.flush();
+    }
+    void Logger::ln(string text, verbosity v, color c, color bg, bool bold)
+    {
+        log(text + "\n", v, c, bg, bold);
     }
 }
