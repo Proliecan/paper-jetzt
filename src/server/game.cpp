@@ -1,6 +1,20 @@
 #include "game.hpp"
 using namespace game;
 
+#pragma region Map-bitmasking
+
+Game::fieldState *Game::getFieldState(int x, int y)
+{
+    return &(*map)[y][x];
+}
+
+void Game::setFieldState(int x, int y, fieldState state)
+{
+    (*map)[y][x] = state;
+}
+
+#pragma endregion
+
 void Game::start()
 {
     Logger::ln("Game started", Logger::normal, green);
@@ -9,10 +23,16 @@ void Game::start()
     // Initialize player positions
     for (Player &player : *players)
     {
-        Player::position pos;
-        pos.x = rand() % width;
-        pos.y = rand() % height;
-        player.setPos(pos);
+        // set player position
+        int x = rand() % width;
+        int y = rand() % height;
+        while (!(getFieldState(x, y)->player == nullptr))
+        {
+            x = rand() % width;
+            y = rand() % height;
+        }
+        setFieldState(x, y, {false, true, &player});
+        player.setIsAlive(true);
     }
 
     // Start game loop
@@ -23,22 +43,26 @@ void Game::gameLoop()
 {
     while (true)
     {
-        // send game state to clients
-        // send all players the position of all players
-        for (Player &player : *players)
+        // iterate over map and send head positions to all players
+        for (int y = 0; y < height; y++)
         {
-            if (!player.getIsAlive())
+            for (int x = 0; x < width; x++)
             {
-                continue;
+                if (getFieldState(x, y)->isHead)
+                {
+                    Player *player = getFieldState(x, y)->player;
+
+                    if (player != nullptr)
+                    {
+                        // send head position to player
+                        m_server->sendPacketToAllPlayers(ServerPacketType::pos, {player->getName(), std::to_string(x), std::to_string(y)});
+                    }
+                }
             }
-            m_server->sendPacketToAllPlayers(ServerPacketType::pos, {player.getName(), std::to_string(player.getPos().x), std::to_string(player.getPos().y)});
         }
 
         // sleep for 1 second
         sleep(sleepTime);
-
-        // vector for died players
-        vector<Player *> diedPlayers;
 
         // make moves
         for (Player &player : *players)
@@ -47,39 +71,9 @@ void Game::gameLoop()
             {
                 continue;
             }
+
             // move player
-            Player::position newPos = player.getPos();
-            switch (player.getNextMove())
-            {
-            case move::UP:
-                newPos.y--;
-                break;
-            case move::DOWN:
-                newPos.y++;
-                break;
-            case move::LEFT:
-                newPos.x--;
-                break;
-            case move::RIGHT:
-                newPos.x++;
-                break;
-            default:
-                break;
-            }
-
-            // check for collision
-            if (newPos.x < 0 || newPos.x >= width || newPos.y < 0 || newPos.y >= height)
-            {
-                // out of bounds
-                // kill player
-                diedPlayers.push_back(&player);
-                player.setIsAlive(false);
-
-                continue;
-            }
-
-            // update player position
-            player.setPos(newPos);
+            movePlayer(&player);
         }
 
         // send game tick
@@ -95,6 +89,76 @@ void Game::gameLoop()
                 diedPlayerNames.push_back(player->getName());
             }
             m_server->sendPacketToAllPlayers(ServerPacketType::die, diedPlayerNames);
+
+            // remove died players from map
+
+            // empty diedPlayers vector
+            diedPlayers.clear();
         }
     }
+}
+
+void Game::movePlayer(Player *player)
+{
+    position *pos = getPlayerPosition(player);
+
+    if (pos == nullptr)
+    {
+        return;
+    }
+
+    // previous field is now tail
+    setFieldState(pos->x, pos->y, {false, false, player});
+
+    // get next move
+    move nextMove = player->getNextMove();
+
+    // move player
+    switch (nextMove)
+    {
+    case UP:
+        pos->y--;
+        break;
+    case DOWN:
+        pos->y++;
+        break;
+    case LEFT:
+        pos->x--;
+        break;
+    case RIGHT:
+        pos->x++;
+        break;
+
+    default:
+        break;
+    }
+
+    // collision tests
+    // Out of bounds
+    if (pos->x < 0 || pos->x >= width || pos->y < 0 || pos->y >= height)
+    {
+        player->setIsAlive(false);
+        diedPlayers.push_back(player);
+        return;
+    }
+
+    // set new head position
+    setFieldState(pos->x, pos->y, {false, true, player});
+}
+
+Game::position *Game::getPlayerPosition(Player *player)
+{
+    // iterate over map and find player
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            if (getFieldState(x, y)->player == player)
+            {
+                return new position{x, y};
+            }
+        }
+    }
+
+    return nullptr;
 }

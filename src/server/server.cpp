@@ -76,10 +76,10 @@ void Server::sendPacketToAllPlayers(ServerPacketType type, vector<string> args)
     // send packet to all players
     for (Session *session : sessions_)
     {
-        for (unsigned int i = 0; i < m_game->getPlayers()->size(); i++)
+        for(unsigned int i = 0; i < m_game->getPlayers()->size(); i++)
         {
             if (session->hasJoined() && session->getPlayer()->getName() == (m_game->getPlayers()->at(i).getName()))
-            {
+            {   
                 session->sendPacket(type, args);
             }
         }
