@@ -1,7 +1,8 @@
 #include "game.hpp"
-using namespace game;
+using server::game::Game;
+using server::Server;
 
-void Game::start()
+void server::game::Game::start()
 {
     Logger::ln("Game started", Logger::normal, green);
     Logger::ln("[" + std::to_string(width) + "x" + std::to_string(height) + "]", Logger::normal, blue);
@@ -19,7 +20,7 @@ void Game::start()
     gameLoop();
 }
 
-void Game::gameLoop()
+void server::game::Game::gameLoop()
 {
     while (true)
     {

@@ -5,6 +5,7 @@
 
 using string = std::string;
 using namespace helpers;
+using server::UserDatabase;
 
 void UserDatabase::loadFromFile(string filepath)
 {

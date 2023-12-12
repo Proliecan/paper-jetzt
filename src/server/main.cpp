@@ -7,6 +7,7 @@
 
 using std::string;
 using std::vector;
+using server::UserDatabase;
 
 // forward declarations
 void print_usage(char *argv[]);
@@ -68,7 +69,7 @@ int main(int argc, char *argv[])
         Logger::ln("Starting server...", Logger::normal);
         boost::asio::io_context io_context;
         // server has to live on the heap to not cause segfauls daah
-        new Server(io_context, port, user_db);
+        new server::Server(io_context, port, user_db);
 
         io_context.run();
     }
