@@ -1,5 +1,11 @@
 #include "server.hpp"
 
+using server::Server;
+using server::Session;
+using server::game::Player;
+using server::game::Game;
+using server::ProcessErrorCode;
+
 Server::Server(boost::asio::io_context &io_context, short port, UserDatabase *user_db)
     : acceptor_(io_context, tcp::endpoint(tcp::v4(), port)),
       sessions_(),

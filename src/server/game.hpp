@@ -9,10 +9,9 @@
 using std::string;
 using std::vector;
 using namespace helpers;
-
+namespace server {
 // forward declare
 class Server;
-
 namespace game
 {
 
@@ -66,17 +65,17 @@ namespace game
         int width;
         int height;
         vector<Player> *players;
-        Server *m_server;
+        server::Server *m_server;
         unsigned int sleepTime = 1;
 
     public:
-        Game(unsigned int width, unsigned int height, vector<Player> *players, Server *m_server)
+        Game(unsigned int width, unsigned int height, vector<Player> *players, server::Server *m_server)
             : width(width),
               height(height),
               players(players),
               m_server(m_server) {};
 
-        Game(vector<Player> *players, Server *m_server)
+        Game(vector<Player> *players, server::Server *m_server)
             : width(10 * players->size()),
               height(10 * players->size()),
               players(players),
@@ -94,3 +93,4 @@ namespace game
     };
 
 }
+};
