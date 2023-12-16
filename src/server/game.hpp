@@ -2,10 +2,12 @@
 
 #include <string>
 #include <vector>
+#include <span>
 
 #include "../helpers.hpp"
 #include "server.hpp"
 
+using std::span;
 using std::string;
 using std::vector;
 using namespace helpers;
@@ -114,9 +116,25 @@ namespace game
         fieldState *getFieldState(int x, int y);
 
         void setFieldState(int x, int y, fieldState state);
+        void purgePlayers(span<Player *const> players);
 
-        void movePlayer(Player *player);
-        position *getPlayerPosition(Player *player);
+        struct headPosition
+        {
+            Player *player;
+            position *pos;
+        };
+        vector<headPosition> getAllHeadPositions();
+
+        headPosition getNewHeadPosition(headPosition headPos);
+
+        enum collisionType
+        {
+            NONE,
+            OUT_OF_BOUNDS,
+            HEAD,
+            TAIL
+        };
+        collisionType checkCollision(headPosition headPos);
     };
 
 }

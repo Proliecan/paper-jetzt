@@ -1,8 +1,6 @@
 #include "game.hpp"
 using namespace game;
 
-#pragma region Map-bitmasking
-
 Game::fieldState *Game::getFieldState(int x, int y)
 {
     return &(*map)[y][x];
@@ -13,7 +11,23 @@ void Game::setFieldState(int x, int y, fieldState state)
     (*map)[y][x] = state;
 }
 
-#pragma endregion
+void Game::purgePlayers(span<Player *const> players)
+{
+    // iterate over known positions of player and over whole map and remove players from map
+    for (int y = 0; y < height; y++)
+    {
+        for (int x = 0; x < width; x++)
+        {
+            for (Player *p : players)
+            {
+                if (getFieldState(x, y)->player == p)
+                {
+                    setFieldState(x, y, {false, false, nullptr});
+                }
+            }
+        }
+    }
+}
 
 void Game::start()
 {
@@ -43,37 +57,47 @@ void Game::gameLoop()
 {
     while (true)
     {
-        // iterate over map and send head positions to all players
-        for (int y = 0; y < height; y++)
+        // send pos packets
+        vector<headPosition> headPositions = getAllHeadPositions();
+        for (headPosition headPosition : headPositions)
         {
-            for (int x = 0; x < width; x++)
-            {
-                if (getFieldState(x, y)->isHead)
-                {
-                    Player *player = getFieldState(x, y)->player;
-
-                    if (player != nullptr)
-                    {
-                        // send head position to player
-                        m_server->sendPacketToAllPlayers(ServerPacketType::pos, {player->getName(), std::to_string(x), std::to_string(y)});
-                    }
-                }
-            }
+            m_server->sendPacketToAllPlayers(ServerPacketType::pos, {headPosition.player->getName(), std::to_string(headPosition.pos->x), std::to_string(headPosition.pos->y)});
         }
 
         // sleep for 1 second
         sleep(sleepTime);
 
-        // make moves
-        for (Player &player : *players)
+        // move players
+        vector<headPosition> newHeadPositions;
+        for (headPosition headPosition : headPositions)
         {
-            if (!player.getIsAlive())
+            // calculate new position based on next move
+            newHeadPositions.push_back(getNewHeadPosition(headPosition));
+        }
+        // for all new positions
+        for (headPosition newHeadPosition : newHeadPositions)
+        {
+            // check for collision by looking up in map and comparing all new positions
+            collisionType collision = checkCollision(newHeadPosition);
+            // if collision push player to diedPlayers vector
+            if (collision != collisionType::NONE)
             {
+                diedPlayers.push_back(newHeadPosition.player);
                 continue;
             }
-
-            // move player
-            movePlayer(&player);
+            // set new position in map
+            setFieldState(newHeadPosition.pos->x, newHeadPosition.pos->y, {false, true, newHeadPosition.player});
+            // old position is now tail
+            // TODO: use hashmaps for head positions
+            headPosition oldHeadPosition;
+            for (headPosition headPosition : headPositions)
+            {
+                if (headPosition.player == newHeadPosition.player)
+                {
+                    oldHeadPosition = headPosition;
+                }
+            }
+            setFieldState(oldHeadPosition.pos->x, oldHeadPosition.pos->y, {false, false, newHeadPosition.player});
         }
 
         // send game tick
@@ -91,6 +115,7 @@ void Game::gameLoop()
             m_server->sendPacketToAllPlayers(ServerPacketType::die, diedPlayerNames);
 
             // remove died players from map
+            purgePlayers(diedPlayers);
 
             // empty diedPlayers vector
             diedPlayers.clear();
@@ -98,22 +123,13 @@ void Game::gameLoop()
     }
 }
 
-void Game::movePlayer(Player *player)
+Game::headPosition Game::getNewHeadPosition(Game::headPosition headPosition)
 {
-    position *pos = getPlayerPosition(player);
+    // get Info
+    move nextMove = headPosition.player->getNextMove();
+    position *pos = new Game::position{headPosition.pos->x, headPosition.pos->y};
 
-    if (pos == nullptr)
-    {
-        return;
-    }
-
-    // previous field is now tail
-    setFieldState(pos->x, pos->y, {false, false, player});
-
-    // get next move
-    move nextMove = player->getNextMove();
-
-    // move player
+    // calculate new position
     switch (nextMove)
     {
     case UP:
@@ -133,32 +149,43 @@ void Game::movePlayer(Player *player)
         break;
     }
 
-    // collision tests
-    // Out of bounds
-    if (pos->x < 0 || pos->x >= width || pos->y < 0 || pos->y >= height)
-    {
-        player->setIsAlive(false);
-        diedPlayers.push_back(player);
-        return;
-    }
-
-    // set new head position
-    setFieldState(pos->x, pos->y, {false, true, player});
+    // return new position
+    return {headPosition.player, pos};
 }
 
-Game::position *Game::getPlayerPosition(Player *player)
+vector<Game::headPosition> Game::getAllHeadPositions()
 {
+    vector<headPosition> headPositions;
+
+    // TODO: optimize this
     // iterate over map and find player
     for (int y = 0; y < height; y++)
     {
         for (int x = 0; x < width; x++)
         {
-            if (getFieldState(x, y)->player == player)
+
+            if (getFieldState(x, y)->isHead)
             {
-                return new position{x, y};
+                Player *player = getFieldState(x, y)->player;
+
+                if (player != nullptr)
+                {
+                    headPositions.push_back({player, new position{x, y}});
+                }
             }
         }
     }
 
-    return nullptr;
+    return headPositions;
+}
+
+Game::collisionType Game::checkCollision(headPosition newHeadPosition)
+{
+    collisionType collision = collisionType::NONE;
+    // check for out of bounds
+    if (newHeadPosition.pos->x < 0 || newHeadPosition.pos->x >= width || newHeadPosition.pos->y < 0 || newHeadPosition.pos->y >= height)
+    {
+        collision = collisionType::OUT_OF_BOUNDS;
+    }
+    return collision;
 }

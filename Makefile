@@ -26,7 +26,7 @@ botObj = $(patsubst $(botSrcDir)/%.cpp, $(botObjDir)/%.o, $(botSrc))
 
 # compiler
 CC = g++
-CFLAGS = -Wall -Wextra -Werror -Wno-unknown-pragmas -std=c++17 -g
+CFLAGS = -Wall -Wextra -Werror -Wno-unknown-pragmas -std=c++20 -g
 
 #targets
 all: server bot
